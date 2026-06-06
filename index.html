@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SM무비 아카데미 | 저작권 정밀 분석 시스템</title>
+    <title>SM무비 아카데미 | 하이브리드 저작권 분석 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,13 +29,11 @@
         .page-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; border: 1px solid #222; color: #888; background: #111; }
         .page-btn:hover { background: #333; color: #fff; }
         .page-btn.active { background: #D4AF37; color: #000; border-color: #D4AF37; }
-        /* 측면 디테일 패널 슬라이드 효과 */
         #detail-panel { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- 1. 구글 로그인 화면 -->
     <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920')] bg-cover bg-center">
         <div class="absolute inset-0 bg-black/85 backdrop-blur-sm"></div>
         <div class="relative z-10 w-full max-w-lg p-10 bg-black/60 border border-gray-800 rounded-2xl shadow-2xl text-center backdrop-blur-md">
@@ -47,10 +45,8 @@
         </div>
     </div>
 
-    <!-- 2. 메인 대시보드 구조 -->
     <div id="main-screen" class="hidden min-h-screen flex flex-col relative">
         
-        <!-- 상단 내비게이션 바 -->
         <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-white/10">
             <div class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -59,16 +55,17 @@
                 </div>
                 
                 <div class="flex items-center gap-4">
-                    <!-- TMDB API인증 칸 -->
-                    <div id="tmdb-auth-section" class="flex items-center gap-2 bg-card border border-white/10 px-3 py-1.5 rounded-full">
+                    <div id="api-auth-section" class="flex items-center gap-2 bg-card border border-white/10 px-3 py-1.5 rounded-full">
                         <i class="fa-solid fa-key text-gold text-sm ml-1"></i>
-                        <input type="text" id="header-tmdb-key" placeholder="TMDB API 키를 입력하세요" class="bg-transparent border-none text-white text-xs outline-none w-44 placeholder-gray-600">
-                        <button onclick="connectTMDB()" class="text-[11px] font-bold text-black bg-gold px-3 py-1 rounded-full hover:bg-yellow-500 transition">DB 연결</button>
+                        <input type="text" id="header-tmdb-key" placeholder="TMDB API 키" class="bg-transparent border-none text-white text-xs outline-none w-28 placeholder-gray-600">
+                        <div class="h-4 w-[1px] bg-white/20 mx-1"></div>
+                        <input type="text" id="header-kobis-key" placeholder="KOBIS API 키" class="bg-transparent border-none text-white text-xs outline-none w-28 placeholder-gray-600">
+                        <button onclick="connectAPIs()" class="text-[11px] font-bold text-black bg-gold px-3 py-1 rounded-full hover:bg-yellow-500 transition">DB 접속</button>
                     </div>
-                    <div id="tmdb-connected-section" class="items-center gap-2 bg-[#111] border border-green-500/50 px-4 py-1.5 rounded-full hidden">
+                    <div id="api-connected-section" class="items-center gap-2 bg-[#111] border border-green-500/50 px-4 py-1.5 rounded-full hidden">
                         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                        <span class="text-green-400 text-xs font-bold tracking-wider">TMDB 데이터베이스 로그온 중</span>
-                        <button onclick="disconnectTMDB()" class="text-gray-500 hover:text-red-400 ml-2 transition"><i class="fa-solid fa-power-off text-[10px]"></i></button>
+                        <span class="text-green-400 text-xs font-bold tracking-wider">다중 DB 연동 (TMDB+KOBIS)</span>
+                        <button onclick="disconnectAPIs()" class="text-gray-500 hover:text-red-400 ml-2 transition"><i class="fa-solid fa-power-off text-[10px]"></i></button>
                     </div>
 
                     <div class="h-6 w-[1px] bg-white/10 mx-2"></div>
@@ -81,27 +78,22 @@
             </div>
         </header>
 
-        <!-- 본문 핵심 대시보드 -->
         <main class="flex-grow max-w-[1600px] mx-auto w-full px-6 py-12">
             
-            <!-- 검색 콘솔 엔진 -->
             <div class="mb-12">
                 <h2 class="text-5xl font-serif font-bold mb-4">지능형 시스템 <span class="text-gray-500">- 저작권 아카이브</span></h2>
-                <p class="text-gray-400 text-base max-w-3xl mb-8">글로벌 멀티미디어 인덱스를 실시간 역추적합니다. 원하시는 카테고리를 선택하고 타겟을 검색하십시오.</p>
+                <p class="text-gray-400 text-base max-w-3xl mb-8">글로벌(TMDB) 및 국내(KOBIS) 멀티미디어 인덱스를 실시간 병합 역추적합니다.</p>
                 
                 <div class="bg-card border border-white/10 p-6 rounded-2xl flex flex-col gap-4">
-                    <!-- 필터 서브탭 (영화, TV, 인물, Awards) -->
                     <div class="flex gap-2 border-b border-white/5 pb-3" id="search-type-tabs">
                         <button onclick="changeSearchType('movie')" id="tab-movie" class="px-4 py-2 text-sm font-bold border-b-2 border-gold text-white">영화 (MOVIES)</button>
                         <button onclick="changeSearchType('tv')" id="tab-tv" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-white">TV 프로그램 (TV SHOWS)</button>
                         <button onclick="changeSearchType('person')" id="tab-person" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-white">인물 (PEOPLE)</button>
-                        <button onclick="alert('Awards 카테고리는 시상식 시즌 통계 필터링 인터페이스로 대기 중입니다.')" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-white">AWARDS (시상식)</button>
                     </div>
 
                     <div class="flex flex-col md:flex-row gap-4 items-center">
                         <input type="text" id="search-query" placeholder="작품명 또는 인물명을 입력하세요..." class="flex-1 bg-black border border-gray-800 rounded-xl py-3.5 px-4 text-white outline-none focus:border-gold w-full text-sm">
                         
-                        <!-- 1890년 무성영화 시대까지 필터 확장 -->
                         <select id="filter-year" class="w-full md:w-40 bg-black border border-gray-800 rounded-xl py-3.5 px-4 text-white outline-none focus:border-gold text-sm cursor-pointer">
                             <option value="">연도 (전체)</option>
                             <option value="classic">옛날 고전 (1950 이전)</option>
@@ -114,9 +106,7 @@
                 </div>
             </div>
 
-            <!-- 3열 분리식 리포트 보드 -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-16">
-                <!-- SAFE -->
                 <div class="bg-[#070b08] border border-green-950/60 rounded-2xl p-6 flex flex-col">
                     <div class="mb-6 border-b border-green-950 pb-4">
                         <div class="flex justify-between items-center mb-2">
@@ -129,7 +119,6 @@
                     <div id="grid-safe" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow min-h-[150px]"></div>
                 </div>
 
-                <!-- CAUTION -->
                 <div class="bg-[#0b0a07] border border-yellow-950/60 rounded-2xl p-6 flex flex-col">
                     <div class="mb-6 border-b border-yellow-950 pb-4">
                         <div class="flex justify-between items-center mb-2">
@@ -142,7 +131,6 @@
                     <div id="grid-caution" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow min-h-[150px]"></div>
                 </div>
 
-                <!-- DANGER -->
                 <div class="bg-[#0b0707] border border-red-950/60 rounded-2xl p-6 flex flex-col">
                     <div class="mb-6 border-b border-red-950 pb-4">
                         <div class="flex justify-between items-center mb-2">
@@ -156,7 +144,6 @@
                 </div>
             </div>
 
-            <!-- 누적 실시간 피드 (테이블형 데이터 연동) -->
             <div class="bg-[#0d0d0d] border border-white/5 rounded-2xl p-8">
                 <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
                     <h3 class="text-lg font-bold tracking-widest font-serif text-gray-300">LIVE · SAFETY FEED ARCHIVE</h3>
@@ -175,15 +162,13 @@
             </div>
         </main>
 
-        <!-- 3. 우측 슬라이드-인 슬롯 디테일 가이드 패널 -->
         <div id="detail-panel" class="fixed top-0 right-0 h-full w-full max-w-lg bg-[#111111] z-50 shadow-2xl border-l border-white/10 p-8 transform translate-x-full overflow-y-auto">
             <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                 <h3 class="text-xl font-bold text-gold font-serif"><i class="fa-solid fa-file-shield mr-2"></i> 정밀 결함 진단서</h3>
                 <button onclick="closeDetailPanel()" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="panel-body" class="flex flex-col gap-6">
-                <!-- 콘텐츠가 동적으로 주입됩니다 -->
-            </div>
+                </div>
         </div>
         
         <footer class="border-t border-white/5 py-8 text-center text-gray-600 text-xs bg-black mt-auto">
@@ -197,12 +182,13 @@
         const ITEMS_PER_PAGE = 5;
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
         const IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
+        const KOBIS_BASE_URL = "https://kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json";
 
         // 구글 ID 인증 처리
         window.onload = function () {
             google.accounts.id.initialize({ client_id: "79893355754-l61lcv9fi1ok5c12grteuac1ltc9g6eg.apps.googleusercontent.com", callback: handleCredentialResponse });
             google.accounts.id.renderButton(document.getElementById("google-btn-container"), { theme: "outline", size: "large", shape: "pill", width: 280 });
-            checkTMDBConnection();
+            checkAPIConnection();
             renderHistory();
         };
 
@@ -238,7 +224,7 @@
             });
         }
 
-        // 안정도 판별 알고리즘 (가이드 정책 결합 구조)
+        // 안정도 판별 알고리즘
         function calculateSafetyStatus(id, title) {
             const hash = id % 100;
             if (hash > 60) {
@@ -262,10 +248,10 @@
             }
         }
 
-        // 검색 데이터 엔진 호출 스위치
+        // 검색 데이터 엔진 호출
         async function searchEngineTrigger() {
-            const apiKey = localStorage.getItem('saved_tmdb_key');
-            if(!apiKey) { alert('우측 상단 엔진에서 TMDB API Key 연동 로그온을 수행하십시오.'); return; }
+            const tmdbKey = localStorage.getItem('saved_tmdb_key');
+            if(!tmdbKey) { alert('우측 상단 엔진에서 TMDB API Key 연동 로그온을 수행하십시오.'); return; }
 
             const query = document.getElementById('search-query').value.trim();
             const yearFilter = document.getElementById('filter-year').value;
@@ -277,9 +263,9 @@
             else if(yearFilter) yearParam = currentSearchType === 'movie' ? `&primary_release_year=${yearFilter}` : `&first_air_date_year=${yearFilter}`;
 
             if(query) {
-                url = `${TMDB_BASE_URL}/search/${currentSearchType}?api_key=${apiKey}&language=ko-KR&query=${encodeURIComponent(query)}`;
+                url = `${TMDB_BASE_URL}/search/${currentSearchType}?api_key=${tmdbKey}&language=ko-KR&query=${encodeURIComponent(query)}`;
             } else {
-                url = `${TMDB_BASE_URL}/discover/${currentSearchType}?api_key=${apiKey}&language=ko-KR&sort_by=popularity.desc${yearParam}`;
+                url = `${TMDB_BASE_URL}/discover/${currentSearchType}?api_key=${tmdbKey}&language=ko-KR&sort_by=popularity.desc${yearParam}`;
             }
 
             fetchDataAndRender(url);
@@ -306,7 +292,7 @@
                 data.results.forEach(item => {
                     const title = item.title || item.name || "미정 명세";
                     const poster = item.poster_path || item.profile_path;
-                    if(!poster) return; // 이미지 인덱스 확보 불가능 대상을 필터 제외 처리
+                    if(!poster) return;
 
                     const safety = calculateSafetyStatus(item.id, title);
                     const year = (item.release_date || item.first_air_date || "----").substring(0,4);
@@ -326,7 +312,6 @@
                     grids[safety.type].insertAdjacentHTML('beforeend', cardHtml);
                 });
 
-                // 빈 영역 안내 노출 처리
                 Object.keys(grids).forEach(k => {
                     if(grids[k].children.length === 0) grids[k].innerHTML = '<div class="col-span-2 text-center py-6 text-xs text-gray-700">매칭 데이터 없음</div>';
                 });
@@ -338,46 +323,92 @@
             }
         }
 
-        // 디테일 슬라이드 패널 구동 제어 엔진
+        // 하이브리드 디테일 슬라이드 패널 구동 (TMDB + KOBIS)
         async function openDetailPanel(id, type) {
-            const apiKey = localStorage.getItem('saved_tmdb_key');
+            const tmdbKey = localStorage.getItem('saved_tmdb_key');
+            const kobisKey = localStorage.getItem('saved_kobis_key');
             const panel = document.getElementById('detail-panel');
             const body = document.getElementById('panel-body');
             
-            body.innerHTML = '<div class="text-center py-20 text-gold"><i class="fa-solid fa-gear fa-spin text-3xl"></i><p class="mt-4 text-xs">서버 연동 메타데이터 정밀 분석 중...</p></div>';
+            body.innerHTML = '<div class="text-center py-20 text-gold"><i class="fa-solid fa-gear fa-spin text-3xl"></i><p class="mt-4 text-xs">하이브리드 메타데이터 정밀 분석 중 (TMDB + KOBIS)...</p></div>';
             panel.classList.remove('translate-x-full');
 
             try {
-                const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?api_key=${apiKey}&language=ko-KR`);
+                // 1. TMDB 데이터 패치
+                const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?api_key=${tmdbKey}&language=ko-KR`);
                 const item = await res.json();
                 
                 const title = item.title || item.name || "미정";
+                const originalTitle = item.original_title || item.original_name || "";
                 const safety = calculateSafetyStatus(item.id, title);
                 
-                // 수입/배급사 정보 가공 수집
-                let companies = "해외 직배 및 독립 유통 공급망";
-                if(item.production_companies && item.production_companies.length > 0) {
+                // 2. KOBIS 데이터 패치 (영화인 경우에만 적용)
+                let kobisInfo = null;
+                if(type === 'movie' && kobisKey) {
+                    try {
+                        // KOBIS API는 정확한 영화명 검색을 요구
+                        const kobisRes = await fetch(`${KOBIS_BASE_URL}?key=${kobisKey}&movieNm=${encodeURIComponent(title)}`);
+                        const kobisData = await kobisRes.json();
+                        
+                        if(kobisData.movieListResult && kobisData.movieListResult.movieList.length > 0) {
+                            // 리스트 중 첫 번째 결과값을 채택 (포트폴리오 시연용)
+                            kobisInfo = kobisData.movieListResult.movieList[0];
+                        }
+                    } catch(err) {
+                        console.warn("KOBIS 연동 실패 혹은 해당 영화 정보가 없습니다.", err);
+                    }
+                }
+
+                // 3. 데이터 하이브리드 가공
+                let companies = "해외 직배 및 독립 유통 공급망 (TMDB 기준)";
+                let directors = "미상";
+                let nations = "글로벌 (TMDB)";
+                
+                if (kobisInfo) {
+                    // KOBIS 정보가 있다면 최우선 적용
+                    companies = kobisInfo.companys && kobisInfo.companys.length > 0 
+                                ? kobisInfo.companys.map(c => c.companyNm).join(', ') 
+                                : companies;
+                    directors = kobisInfo.directors && kobisInfo.directors.length > 0 
+                                ? kobisInfo.directors.map(d => d.peopleNm).join(', ') 
+                                : "데이터 없음";
+                    nations = kobisInfo.repNationNm || nations;
+                } else if (item.production_companies && item.production_companies.length > 0) {
+                    // KOBIS 정보가 없으면 TMDB 제작사 정보 사용
                     companies = item.production_companies.map(c => c.name).join(', ');
                 }
 
-                // 가상 관객수/대중성 계측 통계
-                const popScore = Math.floor(item.popularity || 0).toLocaleString();
+                // 4. 가상 관객수/대중성 계측 통계 (시뮬레이션 알고리즘)
+                const popularity = item.popularity || 0;
+                const popScore = Math.floor(popularity).toLocaleString();
                 const voteAvg = item.vote_average ? item.vote_average.toFixed(1) : "0.0";
+                
+                // KOBIS API의 한계를 극복하기 위해 TMDB 인기도를 기반으로 '추정 관객수' 가공
+                // (인기도 * 가중치 12,500)
+                const simulatedAudience = type === 'movie' 
+                                        ? Math.floor(popularity * 12500).toLocaleString('ko-KR') + "명 (추정치)" 
+                                        : "해당사항 없음 (TV/인물)";
 
+                // 5. DOM 렌더링
                 body.innerHTML = `
                     <div class="flex gap-4 items-start bg-black/40 p-4 border border-white/5 rounded-xl">
                         <img src="${IMG_BASE_URL}${item.poster_path || item.profile_path}" class="w-24 object-cover rounded shadow-md border border-white/10">
                         <div>
                             <h4 class="text-xl font-bold text-white">${title}</h4>
-                            <p class="text-xs text-gray-500 mt-1">${item.original_title || item.original_name || ""}</p>
-                            <div class="mt-3 inline-block px-2.5 py-0.5 text-[11px] font-bold rounded ${safety.bg} ${safety.text}">${safety.status}</div>
+                            <p class="text-xs text-gray-500 mt-1">${originalTitle}</p>
+                            <div class="mt-3 inline-block px-2.5 py-0.5 text-[11px] font-bold rounded ${safety.bg} ${safety.text}">${safety.label}</div>
                         </div>
                     </div>
                     
-                    <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3">
-                        <h5 class="text-sm font-bold text-gold tracking-wider font-serif">📋 인덱스 명세 및 배급 정보</h5>
-                        <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-gray-300">주요 제작/배급 배포처:</strong><br>${companies}</p>
-                        <p class="text-xs text-gray-400 mt-2"><strong class="text-gray-300">글로벌 지표 피드백:</strong><br>대중 신뢰 지수 ${popScore}pt / 글로벌 유저 평점 ★ ${voteAvg}</p>
+                    <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3 relative overflow-hidden">
+                        ${kobisInfo ? '<div class="absolute -right-4 -bottom-4 text-gray-800 opacity-20 text-6xl"><i class="fa-solid fa-building-flag"></i></div>' : ''}
+                        
+                        <h5 class="text-sm font-bold text-gold tracking-wider font-serif">📋 인덱스 명세 및 KOBIS 배급 정보</h5>
+                        <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-gray-300">주요 배포/제작사:</strong><br>${companies}</p>
+                        ${type === 'movie' ? `<p class="text-xs text-gray-400 leading-relaxed"><strong class="text-gray-300">국가 및 감독:</strong><br>${nations} / ${directors}</p>` : ''}
+                        <hr class="border-white/5 my-1">
+                        <p class="text-xs text-gray-400 mt-1"><strong class="text-gray-300">글로벌 지표:</strong> 평점 ★ ${voteAvg} (신뢰지수 ${popScore}pt)</p>
+                        <p class="text-xs text-gray-400"><strong class="text-gray-300">국내 누적 관객:</strong> ${simulatedAudience} <span class="text-[10px] text-gray-600">(알고리즘 환산)</span></p>
                     </div>
 
                     <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3">
@@ -462,22 +493,32 @@
             }
         }
 
-        function connectTMDB() {
-            const key = document.getElementById('header-tmdb-key').value.trim();
-            if(!key) return;
-            localStorage.setItem('saved_tmdb_key', key);
-            checkTMDBConnection();
+        // 다중 API 연동 처리
+        function connectAPIs() {
+            const tmdbKey = document.getElementById('header-tmdb-key').value.trim();
+            const kobisKey = document.getElementById('header-kobis-key').value.trim();
+            
+            if(!tmdbKey) {
+                alert("최소한 TMDB API 키는 입력되어야 합니다.");
+                return;
+            }
+            
+            localStorage.setItem('saved_tmdb_key', tmdbKey);
+            if(kobisKey) localStorage.setItem('saved_kobis_key', kobisKey);
+            
+            checkAPIConnection();
         }
 
-        function disconnectTMDB() {
+        function disconnectAPIs() {
             localStorage.removeItem('saved_tmdb_key');
-            checkTMDBConnection();
+            localStorage.removeItem('saved_kobis_key');
+            checkAPIConnection();
         }
 
-        function checkTMDBConnection() {
-            const key = localStorage.getItem('saved_tmdb_key');
-            document.getElementById('tmdb-auth-section').style.display = key ? 'none' : 'flex';
-            document.getElementById('tmdb-connected-section').style.display = key ? 'flex' : 'none';
+        function checkAPIConnection() {
+            const tmdbKey = localStorage.getItem('saved_tmdb_key');
+            document.getElementById('api-auth-section').style.display = tmdbKey ? 'none' : 'flex';
+            document.getElementById('api-connected-section').style.display = tmdbKey ? 'flex' : 'none';
         }
     </script>
 </body>
