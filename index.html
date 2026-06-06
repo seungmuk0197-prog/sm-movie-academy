@@ -34,6 +34,7 @@
 </head>
 <body class="antialiased">
 
+    <!-- 1. 구글 로그인 화면 -->
     <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920')] bg-cover bg-center">
         <div class="absolute inset-0 bg-black/85 backdrop-blur-sm"></div>
         <div class="relative z-10 w-full max-w-lg p-10 bg-black/60 border border-gray-800 rounded-2xl shadow-2xl text-center backdrop-blur-md">
@@ -45,8 +46,10 @@
         </div>
     </div>
 
+    <!-- 2. 메인 대시보드 구조 -->
     <div id="main-screen" class="hidden min-h-screen flex flex-col relative">
         
+        <!-- 상단 내비게이션 바 -->
         <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-white/10">
             <div class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -55,6 +58,7 @@
                 </div>
                 
                 <div class="flex items-center gap-4">
+                    <!-- 하이브리드 API 인증 칸 -->
                     <div id="api-auth-section" class="flex items-center gap-2 bg-card border border-white/10 px-3 py-1.5 rounded-full">
                         <i class="fa-solid fa-key text-gold text-sm ml-1"></i>
                         <input type="text" id="header-tmdb-key" placeholder="TMDB API 키" class="bg-transparent border-none text-white text-xs outline-none w-28 placeholder-gray-600">
@@ -78,13 +82,16 @@
             </div>
         </header>
 
+        <!-- 본문 핵심 대시보드 -->
         <main class="flex-grow max-w-[1600px] mx-auto w-full px-6 py-12">
             
+            <!-- 검색 콘솔 엔진 -->
             <div class="mb-12">
                 <h2 class="text-5xl font-serif font-bold mb-4">지능형 시스템 <span class="text-gray-500">- 저작권 아카이브</span></h2>
                 <p class="text-gray-400 text-base max-w-3xl mb-8">글로벌(TMDB) 및 국내(KOBIS) 멀티미디어 인덱스를 실시간 병합 역추적합니다.</p>
                 
                 <div class="bg-card border border-white/10 p-6 rounded-2xl flex flex-col gap-4">
+                    <!-- 필터 서브탭 -->
                     <div class="flex gap-2 border-b border-white/5 pb-3" id="search-type-tabs">
                         <button onclick="changeSearchType('movie')" id="tab-movie" class="px-4 py-2 text-sm font-bold border-b-2 border-gold text-white">영화 (MOVIES)</button>
                         <button onclick="changeSearchType('tv')" id="tab-tv" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-white">TV 프로그램 (TV SHOWS)</button>
@@ -106,7 +113,9 @@
                 </div>
             </div>
 
+            <!-- 3열 분리식 리포트 보드 -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-16">
+                <!-- SAFE -->
                 <div class="bg-[#070b08] border border-green-950/60 rounded-2xl p-6 flex flex-col">
                     <div class="mb-6 border-b border-green-950 pb-4">
                         <div class="flex justify-between items-center mb-2">
@@ -119,6 +128,7 @@
                     <div id="grid-safe" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow min-h-[150px]"></div>
                 </div>
 
+                <!-- CAUTION -->
                 <div class="bg-[#0b0a07] border border-yellow-950/60 rounded-2xl p-6 flex flex-col">
                     <div class="mb-6 border-b border-yellow-950 pb-4">
                         <div class="flex justify-between items-center mb-2">
@@ -131,6 +141,7 @@
                     <div id="grid-caution" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow min-h-[150px]"></div>
                 </div>
 
+                <!-- DANGER -->
                 <div class="bg-[#0b0707] border border-red-950/60 rounded-2xl p-6 flex flex-col">
                     <div class="mb-6 border-b border-red-950 pb-4">
                         <div class="flex justify-between items-center mb-2">
@@ -144,12 +155,14 @@
                 </div>
             </div>
 
+            <!-- 누적 실시간 피드 (테이블형 데이터 연동) -->
             <div class="bg-[#0d0d0d] border border-white/5 rounded-2xl p-8">
                 <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
                     <h3 class="text-lg font-bold tracking-widest font-serif text-gray-300">LIVE · SAFETY FEED ARCHIVE</h3>
                     <span class="text-gold border border-gold/30 px-3 py-1 rounded-full text-[10px] font-mono tracking-widest">DATA DEPLOYED</span>
                 </div>
                 
+                <!-- 테이블 헤더 컬러/레이아웃 변경 -->
                 <div class="flex items-center justify-between pb-3 text-xs font-bold tracking-widest border-b border-white/10 pl-4 bg-[#111111] pt-3 rounded-t-lg">
                     <div class="w-20 hidden sm:block font-mono text-gray-500">INDEX CODE</div>
                     <div class="w-32 flex-shrink-0 text-gold">분석 등급 (RATING)</div>
@@ -162,13 +175,15 @@
             </div>
         </main>
 
+        <!-- 3. 우측 슬라이드-인 슬롯 디테일 가이드 패널 -->
         <div id="detail-panel" class="fixed top-0 right-0 h-full w-full max-w-lg bg-[#111111] z-50 shadow-2xl border-l border-white/10 p-8 transform translate-x-full overflow-y-auto">
             <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                 <h3 class="text-xl font-bold text-gold font-serif"><i class="fa-solid fa-file-shield mr-2"></i> 정밀 결함 진단서</h3>
                 <button onclick="closeDetailPanel()" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="panel-body" class="flex flex-col gap-6">
-                </div>
+                <!-- 콘텐츠가 동적으로 주입됩니다 -->
+            </div>
         </div>
         
         <footer class="border-t border-white/5 py-8 text-center text-gray-600 text-xs bg-black mt-auto">
@@ -282,6 +297,7 @@
             fetchDataAndRender(url);
         }
 
+        // 검색 데이터 렌더링 (그리드 카드 영역)
         async function fetchDataAndRender(url) {
             const grids = { safe: document.getElementById('grid-safe'), caution: document.getElementById('grid-caution'), danger: document.getElementById('grid-danger') };
             const loadHtml = '<div class="col-span-2 text-center py-6 text-xs text-gold animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i>연동 해석 중...</div>';
@@ -313,6 +329,7 @@
                         <div onclick="openDetailPanel(${item.id}, '${currentSearchType}')" class="movie-card bg-black border border-white/5 rounded-xl overflow-hidden relative cursor-pointer group flex flex-col aspect-[2/3]">
                             <img src="${IMG_BASE_URL}${poster}" alt="${title}" class="w-full h-full object-cover">
                             
+                            <!-- 좌측 상단 뱃지 (순위 + 안전등급) -->
                             <div class="absolute top-2 left-2 flex gap-1 z-10">
                                 <span class="px-2 py-0.5 text-[10px] font-black bg-gold text-black rounded shadow-md">${rank}위</span>
                                 <span class="px-2 py-0.5 text-[9px] font-black ${safety.bg} ${safety.text} rounded backdrop-blur-sm shadow-md">
@@ -320,11 +337,13 @@
                                 </span>
                             </div>
 
+                            <!-- 하단 정보 패널 (유튜브 채널 통계 추가) -->
                             <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end p-3">
                                 <h4 class="font-bold text-white text-xs leading-tight line-clamp-2 mb-1">${title}</h4>
                                 <div class="flex justify-between items-end">
                                     <p class="text-[9px] text-gray-400">${year} · ID: ${item.id}</p>
                                     
+                                    <!-- 유튜브 채널 개수 노출 UI -->
                                     <div class="bg-black/60 border border-red-500/30 px-1.5 py-0.5 rounded flex items-center gap-1 backdrop-blur-sm">
                                         <i class="fa-brands fa-youtube text-red-500 text-[10px]"></i>
                                         <span class="text-[9px] text-gray-200 font-bold">${safety.mockChannels}개 채널</span>
@@ -347,26 +366,32 @@
             }
         }
 
-        // 하이브리드 디테일 슬라이드 패널 구동 (TMDB + KOBIS)
+        // 하이브리드 디테일 슬라이드 패널 구동 (TMDB + KOBIS + 주연배우)
         async function openDetailPanel(id, type) {
             const tmdbKey = localStorage.getItem('saved_tmdb_key');
             const kobisKey = localStorage.getItem('saved_kobis_key');
             const panel = document.getElementById('detail-panel');
             const body = document.getElementById('panel-body');
             
-            body.innerHTML = '<div class="text-center py-20 text-gold"><i class="fa-solid fa-gear fa-spin text-3xl"></i><p class="mt-4 text-xs">하이브리드 메타데이터 정밀 분석 중 (TMDB + KOBIS)...</p></div>';
+            body.innerHTML = '<div class="text-center py-20 text-gold"><i class="fa-solid fa-gear fa-spin text-3xl"></i><p class="mt-4 text-xs">하이브리드 메타데이터 및 캐스팅 정밀 분석 중...</p></div>';
             panel.classList.remove('translate-x-full');
 
             try {
-                // 1. TMDB 데이터 패치
-                const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?api_key=${tmdbKey}&language=ko-KR`);
+                // 1. TMDB 데이터 패치 (append_to_response=credits 속성을 붙여 캐스팅 데이터를 한 번에 가져옴)
+                const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?api_key=${tmdbKey}&language=ko-KR&append_to_response=credits`);
                 const item = await res.json();
                 
                 const title = item.title || item.name || "미정";
                 const originalTitle = item.original_title || item.original_name || "";
                 const safety = calculateSafetyStatus(item.id, title);
+
+                // 출연진(배우) 데이터 가공 (상위 3명 추출)
+                let castStr = "출연진 데이터 없음";
+                if (item.credits && item.credits.cast && item.credits.cast.length > 0) {
+                    castStr = item.credits.cast.slice(0, 3).map(c => c.name).join(', ');
+                }
                 
-                // 2. KOBIS 데이터 패치 (영화인 경우에만 적용)
+                // 2. KOBIS 데이터 패치
                 let kobisInfo = null;
                 if(type === 'movie' && kobisKey) {
                     try {
@@ -398,7 +423,7 @@
                     companies = item.production_companies.map(c => c.name).join(', ');
                 }
 
-                // 4. 가상 관객수/대중성 계측 통계
+                // 4. 가상 관객수 통계
                 const popularity = item.popularity || 0;
                 const popScore = Math.floor(popularity).toLocaleString();
                 const voteAvg = item.vote_average ? item.vote_average.toFixed(1) : "0.0";
@@ -424,6 +449,10 @@
                         <h5 class="text-sm font-bold text-gold tracking-wider font-serif">📋 인덱스 명세 및 KOBIS 배급 정보</h5>
                         <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-gray-300">주요 배포/제작사:</strong><br>${companies}</p>
                         ${type === 'movie' ? `<p class="text-xs text-gray-400 leading-relaxed"><strong class="text-gray-300">국가 및 감독:</strong><br>${nations} / ${directors}</p>` : ''}
+                        
+                        <!-- 주연 배우 리스트 추가 -->
+                        ${type !== 'person' ? `<p class="text-xs text-gray-400 leading-relaxed mt-1"><strong class="text-gray-300">주요 출연진:</strong><br><span class="text-gray-400">${castStr}</span></p>` : ''}
+                        
                         <hr class="border-white/5 my-1">
                         <p class="text-xs text-gray-400 mt-1"><strong class="text-gray-300">글로벌 지표:</strong> 평점 ★ ${voteAvg} (신뢰지수 ${popScore}pt)</p>
                         <p class="text-xs text-gray-400"><strong class="text-gray-300">국내 누적 관객:</strong> ${simulatedAudience} <span class="text-[10px] text-gray-600">(알고리즘 환산)</span></p>
@@ -457,7 +486,8 @@
             currentPage = 1; renderHistory();
         }
 
-        function renderHistory() {
+        // 실시간 피드(테이블) 렌더링 함수 - 주연배우 및 채널수 적용 완료
+        async function renderHistory() {
             const list = document.getElementById('history-list');
             const pagination = document.getElementById('pagination');
             let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
@@ -470,14 +500,33 @@
             const totalPages = Math.ceil(history.length / ITEMS_PER_PAGE);
             const start = (currentPage - 1) * ITEMS_PER_PAGE;
             const currentItems = history.slice(start, start + ITEMS_PER_PAGE);
+            const tmdbKey = localStorage.getItem('saved_tmdb_key');
+
+            // 데이터를 불러오는 동안 짧은 로딩 표시
+            list.innerHTML = '<div class="text-center py-10 text-xs text-gold animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i>배우 데이터를 연동 중입니다...</div>';
+
+            // 주인공 이름 5개 동시 병렬 스크래핑 (속도 최적화)
+            const itemsWithActors = await Promise.all(currentItems.map(async (item) => {
+                let mainActor = "주연 미상";
+                if(currentSearchType !== 'person' && tmdbKey) {
+                    try {
+                        const res = await fetch(`${TMDB_BASE_URL}/${currentSearchType}/${item.id}/credits?api_key=${tmdbKey}&language=ko-KR`);
+                        const creditData = await res.json();
+                        if(creditData.cast && creditData.cast.length > 0) {
+                            mainActor = creditData.cast[0].name; // 첫 번째 캐스팅(주인공) 추출
+                        }
+                    } catch(e) {}
+                } else if(currentSearchType === 'person') {
+                    mainActor = "인물 본인";
+                }
+                return { ...item, mainActor };
+            }));
 
             list.innerHTML = '';
-            currentItems.forEach(item => {
+            itemsWithActors.forEach(item => {
                 const title = item.title || item.name || "미정";
                 const safety = calculateSafetyStatus(item.id, title);
                 const year = (item.release_date || item.first_air_date || "----").substring(0,4);
-                
-                // 줄거리 데이터 추출
                 const overview = item.overview ? item.overview : "해당 작품의 상세 줄거리(Plot) 데이터가 TMDB 서버에서 제공되지 않습니다.";
                 
                 const rowHtml = `
@@ -496,7 +545,6 @@
                                     
                                     <div class="flex items-center gap-1.5 text-[10px] text-gray-500">
                                         <span class="truncate hidden sm:inline">${item.original_title || item.original_name || ""} · ${year}</span>
-                                        
                                         <div class="bg-black/60 border border-red-500/30 px-1.5 py-0.5 rounded flex items-center gap-1 backdrop-blur-sm ml-1">
                                             <i class="fa-brands fa-youtube text-red-500 text-[10px]"></i>
                                             <span class="text-[9px] text-gray-200 font-bold">${safety.mockChannels}개 채널</span>
@@ -504,7 +552,9 @@
                                     </div>
                                 </div>
                                 
+                                <!-- 골드 색상으로 주인공 이름 강조 표시 -->
                                 <p class="text-[11px] text-gray-400 truncate w-full pr-6 leading-relaxed">
+                                    <span class="text-gold font-bold mr-1">[${item.mainActor} 주연]</span>
                                     <span class="text-gray-300 font-bold mr-1">줄거리:</span> ${overview}
                                 </p>
                             </div>
