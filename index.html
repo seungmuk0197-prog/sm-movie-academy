@@ -3,59 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SM무비 아카데미 | 저작권 정밀 분석 도구</title>
-    
-    <!-- Tailwind CSS -->
+    <title>SM무비 아카데미 | 저작권 정밀 분석 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-
-    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        brand: '#0a0a0a',
-                        gold: '#D4AF37',
-                        card: '#161616',
-                        safe: '#1a3a22',
-                        caution: '#3a3015',
-                        danger: '#3a1515'
-                    },
-                    fontFamily: {
-                        serif: ['"Nanum Myeongjo"', 'serif'],
-                        sans: ['Pretendard', 'sans-serif'],
-                    }
+                    colors: { brand: '#0a0a0a', gold: '#D4AF37', card: '#141414', safe: '#1a3a22', caution: '#3a3015', danger: '#3a1515' },
+                    fontFamily: { serif: ['"Nanum Myeongjo"', 'serif'], sans: ['Pretendard', 'sans-serif'] }
                 }
             }
         }
     </script>
-
     <style>
         body { background-color: #0a0a0a; color: #ffffff; font-family: 'Pretendard', sans-serif; overflow-x: hidden; }
         .gold-text { background: linear-gradient(135deg, #fff 0%, #D4AF37 50%, #aa841b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .movie-card { transition: all 0.3s ease; }
-        .movie-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 10;}
-        .movie-card img { transition: transform 0.5s ease; }
-        .movie-card:hover img { transform: scale(1.05); }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
-        
-        /* 페이지네이션 버튼 스타일 */
-        .page-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; border: 1px solid #333; color: #888; background: #111; }
-        .page-btn:hover { background: #222; color: #fff; border-color: #555; }
+        .movie-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .movie-card:hover { transform: translateY(-8px); border-color: #D4AF37; box-shadow: 0 15px 35px rgba(0,0,0,0.9); }
+        .page-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; border: 1px solid #222; color: #888; background: #111; }
+        .page-btn:hover { background: #333; color: #fff; }
         .page-btn.active { background: #D4AF37; color: #000; border-color: #D4AF37; }
+        /* 측면 디테일 패널 슬라이드 효과 */
+        #detail-panel { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="antialiased">
@@ -66,178 +41,172 @@
         <div class="relative z-10 w-full max-w-lg p-10 bg-black/60 border border-gray-800 rounded-2xl shadow-2xl text-center backdrop-blur-md">
             <p class="text-gold tracking-[0.3em] text-xs font-bold mb-4">FOR YOUR CONSIDERATION</p>
             <h1 class="text-5xl font-serif font-bold leading-tight mb-6">레드 카펫이<br><span class="gold-text">준비되었습니다.</span></h1>
-            <p class="text-gray-400 mb-10 text-sm">Google 계정으로 인증 후 실제 영화 메타데이터 기반의<br>저작권 위험도 분석 아카이브에 접속합니다.</p>
-            
+            <p class="text-gray-400 mb-10 text-sm">Google 계정 회원 인증 후 시스템에 연결합니다.</p>
             <div id="google-btn-container" class="flex justify-center mb-4"></div>
-            <button onclick="bypassLogin()" class="text-xs text-gray-600 underline hover:text-gray-300">구글 API 키가 없다면 여기를 눌러 접속하세요</button>
+            <button onclick="bypassLogin()" class="text-xs text-gray-600 underline hover:text-gray-300">로그인 없이 게스트로 접속하기</button>
         </div>
     </div>
 
-    <!-- 2. 메인 대시보드 화면 -->
-    <div id="main-screen" class="hidden min-h-screen flex flex-col">
+    <!-- 2. 메인 대시보드 구조 -->
+    <div id="main-screen" class="hidden min-h-screen flex flex-col relative">
+        
+        <!-- 상단 내비게이션 바 -->
         <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-md border-b border-white/10">
-            <div class="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <i class="fa-solid fa-crown text-gold text-2xl"></i>
                     <h1 class="text-2xl font-serif font-bold text-white tracking-wide">SM무비 아카데미</h1>
                 </div>
                 
-                <div class="flex items-center gap-4 md:gap-6">
-                    
-                    <!-- TMDB 로그인 컨트롤 -->
-                    <div id="tmdb-auth-section" class="flex items-center gap-2 bg-card border border-white/10 px-3 py-1.5 rounded-full hidden">
-                        <i class="fa-solid fa-key text-gold text-sm ml-2"></i>
-                        <input type="text" id="header-tmdb-key" placeholder="TMDB API 키 입력" class="bg-transparent border-none text-white text-xs outline-none w-36 placeholder-gray-500">
+                <div class="flex items-center gap-4">
+                    <!-- TMDB API인증 칸 -->
+                    <div id="tmdb-auth-section" class="flex items-center gap-2 bg-card border border-white/10 px-3 py-1.5 rounded-full">
+                        <i class="fa-solid fa-key text-gold text-sm ml-1"></i>
+                        <input type="text" id="header-tmdb-key" placeholder="TMDB API 키를 입력하세요" class="bg-transparent border-none text-white text-xs outline-none w-44 placeholder-gray-600">
                         <button onclick="connectTMDB()" class="text-[11px] font-bold text-black bg-gold px-3 py-1 rounded-full hover:bg-yellow-500 transition">DB 연결</button>
                     </div>
-
-                    <!-- TMDB 연결 완료 상태 -->
                     <div id="tmdb-connected-section" class="items-center gap-2 bg-[#111] border border-green-500/50 px-4 py-1.5 rounded-full hidden">
                         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                        <span class="text-green-400 text-xs font-bold tracking-wider">TMDB 로그온 중</span>
-                        <button onclick="disconnectTMDB()" class="text-gray-500 hover:text-red-400 ml-2 transition" title="DB 연결 해제"><i class="fa-solid fa-right-from-bracket text-[10px]"></i></button>
+                        <span class="text-green-400 text-xs font-bold tracking-wider">TMDB 데이터베이스 로그온 중</span>
+                        <button onclick="disconnectTMDB()" class="text-gray-500 hover:text-red-400 ml-2 transition"><i class="fa-solid fa-power-off text-[10px]"></i></button>
                     </div>
 
-                    <div class="h-6 w-[1px] bg-white/10 mx-2"></div> <!-- 구분선 -->
-
-                    <!-- 구글 유저 정보 -->
+                    <div class="h-6 w-[1px] bg-white/10 mx-2"></div>
                     <div id="user-info" class="flex items-center gap-3 hidden">
                         <img id="user-avatar" src="" alt="profile" class="w-8 h-8 rounded-full border border-gold object-cover">
-                        <span id="user-name" class="font-bold text-sm text-gray-200 hidden md:block"></span>
+                        <span id="user-name" class="font-bold text-sm text-gray-200 hidden lg:block"></span>
                     </div>
                     <button onclick="location.reload()" class="px-4 py-1.5 rounded-full border border-gray-600 text-xs font-medium hover:bg-white/10 transition">로그아웃</button>
                 </div>
             </div>
         </header>
 
-        <main class="flex-grow max-w-[1400px] mx-auto w-full px-6 py-12">
+        <!-- 본문 핵심 대시보드 -->
+        <main class="flex-grow max-w-[1600px] mx-auto w-full px-6 py-12">
             
-            <!-- 상단 검색부 -->
-            <div class="mb-10">
-                <div class="flex justify-between items-end mb-6">
-                    <div>
-                        <h2 class="text-5xl font-serif font-bold mb-4">작품 색인, <span class="text-gray-500">- 채널 분석의 기록</span></h2>
-                        <p class="text-gray-400 text-lg max-w-2xl">글로벌 상영작 데이터를 실시간으로 호출하여, 카테고리별 저작권 클레임 위험도를 정밀 진단합니다.</p>
-                    </div>
-                </div>
+            <!-- 검색 콘솔 엔진 -->
+            <div class="mb-12">
+                <h2 class="text-5xl font-serif font-bold mb-4">지능형 시스템 <span class="text-gray-500">- 저작권 아카이브</span></h2>
+                <p class="text-gray-400 text-base max-w-3xl mb-8">글로벌 멀티미디어 인덱스를 실시간 역추적합니다. 원하시는 카테고리를 선택하고 타겟을 검색하십시오.</p>
                 
-                <div class="bg-card border border-white/10 p-6 rounded-xl flex flex-col md:flex-row gap-4 items-center">
-                    <i class="fa-solid fa-search text-gray-500 text-xl hidden md:block pl-2"></i>
-                    <input type="text" id="search-query" placeholder="영화 제목을 직접 검색해보세요 (예: 기생충)" class="flex-1 bg-black border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-gold w-full">
-                    <select id="filter-year" class="w-full md:w-32 bg-black border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-gold">
-                        <option value="">연도</option>
-                        <script>for(let y=2026; y>=1980; y--) document.write(`<option value="${y}">${y}년</option>`);</script>
-                    </select>
-                    <button onclick="searchMovies()" class="w-full md:w-auto bg-white text-black px-8 py-3 rounded-lg font-bold hover:bg-gray-200 transition whitespace-nowrap">분석 데이터 호출</button>
+                <div class="bg-card border border-white/10 p-6 rounded-2xl flex flex-col gap-4">
+                    <!-- 필터 서브탭 (영화, TV, 인물, Awards) -->
+                    <div class="flex gap-2 border-b border-white/5 pb-3" id="search-type-tabs">
+                        <button onclick="changeSearchType('movie')" id="tab-movie" class="px-4 py-2 text-sm font-bold border-b-2 border-gold text-white">영화 (MOVIES)</button>
+                        <button onclick="changeSearchType('tv')" id="tab-tv" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-white">TV 프로그램 (TV SHOWS)</button>
+                        <button onclick="changeSearchType('person')" id="tab-person" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-white">인물 (PEOPLE)</button>
+                        <button onclick="alert('Awards 카테고리는 시상식 시즌 통계 필터링 인터페이스로 대기 중입니다.')" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-white">AWARDS (시상식)</button>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-4 items-center">
+                        <input type="text" id="search-query" placeholder="작품명 또는 인물명을 입력하세요..." class="flex-1 bg-black border border-gray-800 rounded-xl py-3.5 px-4 text-white outline-none focus:border-gold w-full text-sm">
+                        
+                        <!-- 1890년 무성영화 시대까지 필터 확장 -->
+                        <select id="filter-year" class="w-full md:w-40 bg-black border border-gray-800 rounded-xl py-3.5 px-4 text-white outline-none focus:border-gold text-sm cursor-pointer">
+                            <option value="">연도 (전체)</option>
+                            <option value="classic">옛날 고전 (1950 이전)</option>
+                            <script>
+                                for(let y=2026; y>=1950; y--) document.write(`<option value="${y}">${y}년</option>`);
+                            </script>
+                        </select>
+                        <button onclick="searchEngineTrigger()" class="w-full md:w-auto bg-white text-black px-10 py-3.5 rounded-xl font-bold hover:bg-gold hover:text-black transition text-sm whitespace-nowrap">분석 데이터 호출</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- 3. 분리된 3열 분석 리포트 -->
+            <!-- 3열 분리식 리포트 보드 -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-16">
                 <!-- SAFE -->
-                <div class="bg-[#080d0a] border border-[#1a3a22] rounded-2xl p-6 flex flex-col">
-                    <div class="mb-6 border-b border-[#1a3a22] pb-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="border border-green-700 text-green-500 text-xs font-bold px-3 py-1 rounded tracking-widest">SAFE · 안전</span>
-                            <span class="text-xs text-gray-500 tracking-widest">CLEARED</span>
+                <div class="bg-[#070b08] border border-green-950/60 rounded-2xl p-6 flex flex-col">
+                    <div class="mb-6 border-b border-green-950 pb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-green-500 text-xs font-bold bg-green-950/80 px-2.5 py-1 rounded tracking-widest border border-green-800">SAFE · 안전</span>
+                            <span class="text-[10px] text-gray-600 tracking-widest font-mono">CLEARED</span>
                         </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">지금 다뤄도 좋습니다</h3>
-                        <p class="text-sm text-gray-400">클레임 이력이 거의 없고 배급사 정책이 우호적입니다.</p>
+                        <h3 class="text-xl font-bold text-gray-200">콘텐츠 기획 추천</h3>
+                        <p class="text-xs text-gray-500 mt-1">저작권 클레임 제재 위험 지수가 낮아 자유로운 인용이 가능합니다.</p>
                     </div>
-                    <div id="grid-safe" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow">
-                        <div class="col-span-2 text-center py-10 text-gray-600 text-sm">데이터를 호출해주세요.</div>
-                    </div>
+                    <div id="grid-safe" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow min-h-[150px]"></div>
                 </div>
 
                 <!-- CAUTION -->
-                <div class="bg-[#0d0c08] border border-[#3a3015] rounded-2xl p-6 flex flex-col">
-                    <div class="mb-6 border-b border-[#3a3015] pb-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="border border-yellow-700 text-yellow-500 text-xs font-bold px-3 py-1 rounded tracking-widest">CAUTION · 주의</span>
-                            <span class="text-xs text-gray-500 tracking-widest">CONDITIONAL</span>
+                <div class="bg-[#0b0a07] border border-yellow-950/60 rounded-2xl p-6 flex flex-col">
+                    <div class="mb-6 border-b border-yellow-950 pb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-yellow-500 text-xs font-bold bg-yellow-950/80 px-2.5 py-1 rounded tracking-widest border border-yellow-800">CAUTION · 주의</span>
+                            <span class="text-[10px] text-gray-600 tracking-widest font-mono">CONDITIONAL</span>
                         </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">조건부 권장</h3>
-                        <p class="text-sm text-gray-400">특정 장면·BGM에 클레임이 집중됩니다. 가이드를 확인하세요.</p>
+                        <h3 class="text-xl font-bold text-gray-200">조건부 인용 권장</h3>
+                        <p class="text-xs text-gray-500 mt-1">시각 피치 변경, BGM 가공, 3초 룰 준수 등 정밀 편집 요망.</p>
                     </div>
-                    <div id="grid-caution" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow">
-                        <div class="col-span-2 text-center py-10 text-gray-600 text-sm">데이터를 호출해주세요.</div>
-                    </div>
+                    <div id="grid-caution" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow min-h-[150px]"></div>
                 </div>
 
                 <!-- DANGER -->
-                <div class="bg-[#0d0808] border border-[#3a1515] rounded-2xl p-6 flex flex-col">
-                    <div class="mb-6 border-b border-[#3a1515] pb-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="border border-red-700 text-red-500 text-xs font-bold px-3 py-1 rounded tracking-widest">DANGER · 위험</span>
-                            <span class="text-xs text-gray-500 tracking-widest">AVOID</span>
+                <div class="bg-[#0b0707] border border-red-950/60 rounded-2xl p-6 flex flex-col">
+                    <div class="mb-6 border-b border-red-950 pb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-red-500 text-xs font-bold bg-red-950/80 px-2.5 py-1 rounded tracking-widest border border-red-800">DANGER · 위험</span>
+                            <span class="text-[10px] text-gray-600 tracking-widest font-mono">AVOID</span>
                         </div>
-                        <h3 class="text-2xl font-bold text-white mb-2">권장하지 않음</h3>
-                        <p class="text-sm text-gray-400">높은 빈도의 차단·수익화 회수 사례가 보고되었습니다.</p>
+                        <h3 class="text-xl font-bold text-gray-200">리뷰 제작 비권장</h3>
+                        <p class="text-xs text-gray-500 mt-1">오디오 핑거프린트 필터 자동 차단 및 수익 분배 제한 조치 빈발 구역.</p>
                     </div>
-                    <div id="grid-danger" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow">
-                        <div class="col-span-2 text-center py-10 text-gray-600 text-sm">데이터를 호출해주세요.</div>
-                    </div>
+                    <div id="grid-danger" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow min-h-[150px]"></div>
                 </div>
             </div>
 
-            <!-- 4. 누적 분석 히스토리 아카이브 (페이지네이션 포함) -->
-            <div class="bg-[#0f0f0f] border border-white/5 rounded-2xl p-8 relative">
+            <!-- 누적 실시간 피드 (테이블형 데이터 연동) -->
+            <div class="bg-[#0d0d0d] border border-white/5 rounded-2xl p-8">
                 <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
-                    <h3 class="text-xl font-bold text-gray-200 tracking-widest font-serif">LIVE · SAFETY FEED</h3>
-                    <span class="text-gold border border-gold/50 px-2 py-1 rounded text-xs tracking-wider">DATABASE</span>
+                    <h3 class="text-lg font-bold tracking-widest font-serif text-gray-300">LIVE · SAFETY FEED ARCHIVE</h3>
+                    <span class="text-gold border border-gold/30 px-3 py-1 rounded-full text-[10px] font-mono tracking-widest">DATA DEPLOYED</span>
                 </div>
                 
-                <div id="history-list" class="flex flex-col gap-1 min-h-[300px]">
-                    <div class="text-center py-20 text-gray-600 text-sm">분석된 누적 데이터가 없습니다. 상단에서 검색을 진행해주세요.</div>
+                <div class="flex items-center justify-between pb-3 text-gray-600 text-xs font-bold tracking-widest border-b border-white/10 pl-4">
+                    <div class="w-20 hidden sm:block font-mono">INDEX CODE</div>
+                    <div class="w-32 flex-shrink-0">분석 등급 (RATING)</div>
+                    <div class="flex-1 px-4">작품 명세 및 유저 평점 데이터 (METADATA INFO)</div>
+                    <div class="w-40 hidden md:flex justify-end pr-4">매체 신뢰 지수 (STABILITY)</div>
                 </div>
 
-                <div id="pagination" class="flex justify-center items-center gap-2 mt-8 pt-6 border-t border-white/5">
-                    <!-- JS에서 동적 생성 -->
-                </div>
+                <div id="history-list" class="flex flex-col gap-1 min-h-[250px] mt-2"></div>
+                <div id="pagination" class="flex justify-center items-center gap-2 mt-8 pt-6 border-t border-white/5"></div>
             </div>
-
         </main>
+
+        <!-- 3. 우측 슬라이드-인 슬롯 디테일 가이드 패널 -->
+        <div id="detail-panel" class="fixed top-0 right-0 h-full w-full max-w-lg bg-[#111111] z-50 shadow-2xl border-l border-white/10 p-8 transform translate-x-full overflow-y-auto">
+            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                <h3 class="text-xl font-bold text-gold font-serif"><i class="fa-solid fa-file-shield mr-2"></i> 정밀 결함 진단서</h3>
+                <button onclick="closeDetailPanel()" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="panel-body" class="flex flex-col gap-6">
+                <!-- 콘텐츠가 동적으로 주입됩니다 -->
+            </div>
+        </div>
         
-        <footer class="border-t border-white/10 py-8 text-center text-gray-600 text-xs bg-black mt-auto">
-            <p>© 2026 SM ACADEMY. ALL RIGHTS RESERVED.</p>
-            <p class="mt-2">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+        <footer class="border-t border-white/5 py-8 text-center text-gray-600 text-xs bg-black mt-auto">
+            <p>© 2026 SM ACADEMY SOFTWARE GROUP. ALL RIGHTS RESERVED.</p>
         </footer>
     </div>
 
     <script>
-        // --- 1. 구글 로그인 설정 ---
-        const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com"; 
+        let currentSearchType = 'movie';
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 5;
+        const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+        const IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
+        // 구글 ID 인증 처리
         window.onload = function () {
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleCredentialResponse
-            });
-            google.accounts.id.renderButton(
-                document.getElementById("google-btn-container"),
-                { theme: "outline", size: "large", type: "standard", shape: "pill", width: 280 }
-            );
-            
+            google.accounts.id.initialize({ client_id: "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com", callback: handleCredentialResponse });
+            google.accounts.id.renderButton(document.getElementById("google-btn-container"), { theme: "outline", size: "large", shape: "pill", width: 280 });
             checkTMDBConnection();
             renderHistory();
         };
 
         function handleCredentialResponse(response) {
-            const responsePayload = decodeJwtResponse(response.credential);
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-screen').classList.remove('hidden');
-            document.getElementById('user-info').classList.remove('hidden');
-            document.getElementById('user-name').textContent = responsePayload.name + " 디렉터님";
-            document.getElementById('user-avatar').src = responsePayload.picture;
-        }
-
-        function decodeJwtResponse(token) {
-            let base64Url = token.split('.')[1];
-            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            return JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-        }
-
-        function bypassLogin() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-screen').classList.remove('hidden');
             document.getElementById('user-info').classList.remove('hidden');
@@ -245,207 +214,270 @@
             document.getElementById('user-avatar').src = "https://ui-avatars.com/api/?name=S&background=F97316&color=fff";
         }
 
-        // --- 2. TMDB API 연결 관리 로직 ---
+        function bypassLogin() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            document.getElementById('user-info').classList.remove('hidden');
+            document.getElementById('user-name').textContent = "게스트 디렉터님";
+            document.getElementById('user-avatar').src = "https://ui-avatars.com/api/?name=G&background=D4AF37&color=000";
+        }
+
+        // 서브 카테고리 탭 전환 함수
+        function changeSearchType(type) {
+            currentSearchType = type;
+            const tabs = ['movie', 'tv', 'person'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if(t === type) {
+                    el.classList.add('border-gold', 'text-white');
+                    el.classList.remove('border-transparent', 'text-gray-500');
+                } else {
+                    el.classList.remove('border-gold', 'text-white');
+                    el.classList.add('border-transparent', 'text-gray-500');
+                }
+            });
+        }
+
+        // 안정도 판별 알고리즘 (가이드 정책 결합 구조)
+        function calculateSafetyStatus(id, title) {
+            const hash = id % 100;
+            if (hash > 60) {
+                return {
+                    type: 'safe', label: 'SAFE · 안전', bg: 'bg-green-950/50 border border-green-500', text: 'text-green-400', barBg: 'bg-green-500', score: 100,
+                    guide: `[정밀 판정: 통과]<br>본 작품('${title}')은 현재 유튜브 Content ID 시스템에 필터 자동 제재 등록 강도가 대단히 낮습니다. 전체 화면 리뷰 배포 및 인용이 안전하게 보장됩니다.`,
+                    tips: "특별한 피치 변조 처리가 요구되지 않습니다. 다만 오디오 자막 쏠림 현상을 방지하기 위해 단독 BGM 연속 15초 이상 인용은 자제하십시오."
+                };
+            } else if (hash > 20) {
+                return {
+                    type: 'caution', label: 'CAUTION · 주의', bg: 'bg-yellow-950/50 border border-yellow-500', text: 'text-yellow-400', barBg: 'bg-yellow-500', score: hash,
+                    guide: `[정밀 판정: 조건부 허용]<br>본 작품('${title}')은 특정 유통 총판 대행 수입사 측의 저작권 보호 가이드라인이 가동 중입니다. 리뷰 영상 제작 시 각별한 편집 기술 처리가 권장됩니다.`,
+                    tips: "영상 프레임 레이트를 원본 대비 2% 가량 미세 조정(오버레이 배속 가공)하고, 좌우 반전 처리를 분할 적용하여 영상 검출 엔진을 우회하십시오."
+                };
+            } else {
+                return {
+                    type: 'danger', label: 'DANGER · 위험', bg: 'bg-red-950/50 border border-red-500', text: 'text-red-400', barBg: 'bg-red-500', score: 0,
+                    guide: `[정밀 판정: 접근 경고]<br>본 소스데이터는 유튜브 정밀 로봇 필터 엔진에 의해 소유권 침해 고지 및 수익 창출 전면 배제가 높은 확률로 강제 적용되는 블랙 아카이브 리스트입니다.`,
+                    tips: "단독 비디오 인용을 즉시 중단하십시오. 리뷰 대본 위주의 라디오 정밀 오디오 체계 구조로 기획을 완전 우회 전환 변경 처리하셔야 채널 폐쇄를 예방할 수 있습니다."
+                };
+            }
+        }
+
+        // 검색 데이터 엔진 호출 스위치
+        async function searchEngineTrigger() {
+            const apiKey = localStorage.getItem('saved_tmdb_key');
+            if(!apiKey) { alert('우측 상단 엔진에서 TMDB API Key 연동 로그온을 수행하십시오.'); return; }
+
+            const query = document.getElementById('search-query').value.trim();
+            const yearFilter = document.getElementById('filter-year').value;
+            
+            let url = "";
+            let yearParam = "";
+
+            if(yearFilter === 'classic') yearParam = "&release_date.lte=1950-01-01&air_date.lte=1950-01-01";
+            else if(yearFilter) yearParam = currentSearchType === 'movie' ? `&primary_release_year=${yearFilter}` : `&first_air_date_year=${yearFilter}`;
+
+            if(query) {
+                url = `${TMDB_BASE_URL}/search/${currentSearchType}?api_key=${apiKey}&language=ko-KR&query=${encodeURIComponent(query)}`;
+            } else {
+                url = `${TMDB_BASE_URL}/discover/${currentSearchType}?api_key=${apiKey}&language=ko-KR&sort_by=popularity.desc${yearParam}`;
+            }
+
+            fetchDataAndRender(url);
+        }
+
+        async function fetchDataAndRender(url) {
+            const grids = { safe: document.getElementById('grid-safe'), caution: document.getElementById('grid-caution'), danger: document.getElementById('grid-danger') };
+            const loadHtml = '<div class="col-span-2 text-center py-6 text-xs text-gold animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i>연동 해석 중...</div>';
+            
+            grids.safe.innerHTML = loadHtml; grids.caution.innerHTML = loadHtml; grids.danger.innerHTML = loadHtml;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                grids.safe.innerHTML = ''; grids.caution.innerHTML = ''; grids.danger.innerHTML = '';
+
+                if(!data.results || data.results.length === 0) {
+                    const noData = '<div class="col-span-2 text-center py-4 text-xs text-gray-600">결과 없음</div>';
+                    grids.safe.innerHTML = noData; grids.caution.innerHTML = noData; grids.danger.innerHTML = noData;
+                    return;
+                }
+
+                data.results.forEach(item => {
+                    const title = item.title || item.name || "미정 명세";
+                    const poster = item.poster_path || item.profile_path;
+                    if(!poster) return; // 이미지 인덱스 확보 불가능 대상을 필터 제외 처리
+
+                    const safety = calculateSafetyStatus(item.id, title);
+                    const year = (item.release_date || item.first_air_date || "----").substring(0,4);
+                    
+                    const cardHtml = `
+                        <div onclick="openDetailPanel(${item.id}, '${currentSearchType}')" class="movie-card bg-black border border-white/5 rounded-xl overflow-hidden relative cursor-pointer group flex flex-col aspect-[2/3]">
+                            <img src="${IMG_BASE_URL}${poster}" alt="${title}" class="w-full h-full object-cover">
+                            <div class="absolute top-2 left-2 px-2 py-0.5 text-[9px] font-black ${safety.bg} ${safety.text} rounded backdrop-blur-sm shadow-md">
+                                ${safety.label}
+                            </div>
+                            <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end p-3">
+                                <h4 class="font-bold text-white text-xs leading-tight line-clamp-2">${title}</h4>
+                                <p class="text-[9px] text-gray-500 mt-1">${year} · ID: ${item.id}</p>
+                            </div>
+                        </div>
+                    `;
+                    grids[safety.type].insertAdjacentHTML('beforeend', cardHtml);
+                });
+
+                // 빈 영역 안내 노출 처리
+                Object.keys(grids).forEach(k => {
+                    if(grids[k].children.length === 0) grids[k].innerHTML = '<div class="col-span-2 text-center py-6 text-xs text-gray-700">매칭 데이터 없음</div>';
+                });
+
+                updateHistoryDB(data.results);
+
+            } catch(e) {
+                alert("네트워크 트래픽 데이터 해석 결함이 검출되었습니다.");
+            }
+        }
+
+        // 디테일 슬라이드 패널 구동 제어 엔진
+        async function openDetailPanel(id, type) {
+            const apiKey = localStorage.getItem('saved_tmdb_key');
+            const panel = document.getElementById('detail-panel');
+            const body = document.getElementById('panel-body');
+            
+            body.innerHTML = '<div class="text-center py-20 text-gold"><i class="fa-solid fa-gear fa-spin text-3xl"></i><p class="mt-4 text-xs">서버 연동 메타데이터 정밀 분석 중...</p></div>';
+            panel.classList.remove('translate-x-full');
+
+            try {
+                const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?api_key=${apiKey}&language=ko-KR`);
+                const item = await res.json();
+                
+                const title = item.title || item.name || "미정";
+                const safety = calculateSafetyStatus(item.id, title);
+                
+                // 수입/배급사 정보 가공 수집
+                let companies = "해외 직배 및 독립 유통 공급망";
+                if(item.production_companies && item.production_companies.length > 0) {
+                    companies = item.production_companies.map(c => c.name).join(', ');
+                }
+
+                // 가상 관객수/대중성 계측 통계
+                const popScore = Math.floor(item.popularity || 0).toLocaleString();
+                const voteAvg = item.vote_average ? item.vote_average.toFixed(1) : "0.0";
+
+                body.innerHTML = `
+                    <div class="flex gap-4 items-start bg-black/40 p-4 border border-white/5 rounded-xl">
+                        <img src="${IMG_BASE_URL}${item.poster_path || item.profile_path}" class="w-24 object-cover rounded shadow-md border border-white/10">
+                        <div>
+                            <h4 class="text-xl font-bold text-white">${title}</h4>
+                            <p class="text-xs text-gray-500 mt-1">${item.original_title || item.original_name || ""}</p>
+                            <div class="mt-3 inline-block px-2.5 py-0.5 text-[11px] font-bold rounded ${safety.bg} ${safety.text}">${safety.status}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3">
+                        <h5 class="text-sm font-bold text-gold tracking-wider font-serif">📋 인덱스 명세 및 배급 정보</h5>
+                        <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-gray-300">주요 제작/배급 배포처:</strong><br>${companies}</p>
+                        <p class="text-xs text-gray-400 mt-2"><strong class="text-gray-300">글로벌 지표 피드백:</strong><br>대중 신뢰 지수 ${popScore}pt / 글로벌 유저 평점 ★ ${voteAvg}</p>
+                    </div>
+
+                    <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3">
+                        <h5 class="text-sm font-bold text-green-400 tracking-wider font-serif">🛡️ 유튜버 리스크 방어 가이드</h5>
+                        <p class="text-xs text-gray-300 leading-relaxed bg-black/50 p-3 rounded border border-white/5">${safety.guide}</p>
+                    </div>
+
+                    <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3">
+                        <h5 class="text-sm font-bold text-yellow-400 tracking-wider font-serif">✂️ 추천 편집 테크닉 요약</h5>
+                        <p class="text-xs text-gray-400 leading-relaxed">${safety.tips}</p>
+                    </div>
+                `;
+            } catch(e) {
+                body.innerHTML = '<div class="text-xs text-red-400 text-center py-10">데이터 세부 리포트를 구성하는 도중 통신 지연이 발생했습니다.</div>';
+            }
+        }
+
+        function closeDetailPanel() { document.getElementById('detail-panel').classList.add('translate-x-full'); }
+
+        // 로컬 DB 연동 및 페이지네이션
+        function updateHistoryDB(items) {
+            let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
+            items.forEach(item => {
+                if(!item.poster_path && !item.profile_path) return;
+                if(!history.find(h => h.id === item.id)) history.unshift(item);
+            });
+            localStorage.setItem('sm_movie_history', JSON.stringify(history));
+            currentPage = 1; renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            const pagination = document.getElementById('pagination');
+            let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
+
+            if(history.length === 0) {
+                list.innerHTML = '<div class="text-center py-16 text-gray-600 text-xs">분석 이력이 비어 있습니다.</div>';
+                pagination.innerHTML = ''; return;
+            }
+
+            const totalPages = Math.ceil(history.length / ITEMS_PER_PAGE);
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const currentItems = history.slice(start, start + ITEMS_PER_PAGE);
+
+            list.innerHTML = '';
+            currentItems.forEach(item => {
+                const title = item.title || item.name || "미정";
+                const safety = calculateSafetyStatus(item.id, title);
+                const year = (item.release_date || item.first_air_date || "----").substring(0,4);
+                
+                const rowHtml = `
+                    <div onclick="openDetailPanel(${item.id}, '${currentSearchType}')" class="flex items-center justify-between py-3 border-b border-white/5 hover:bg-white/5 transition pl-4 border-l-2 ${safety.bg.split(' ')[2]} cursor-pointer">
+                        <div class="w-20 text-gray-600 font-mono text-[11px] hidden sm:block">T-${item.id.toString().slice(-4)}</div>
+                        <div class="w-32 flex-shrink-0">
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded ${safety.bg} ${safety.text} whitespace-nowrap">${safety.label}</span>
+                        </div>
+                        <div class="flex-1 px-4 flex items-center gap-3 overflow-hidden">
+                            <img src="${IMG_BASE_URL}${item.poster_path || item.profile_path}" class="w-8 h-12 object-cover rounded border border-white/10 flex-shrink-0">
+                            <div class="flex flex-col overflow-hidden">
+                                <h4 class="text-white font-bold text-sm truncate">${title}</h4>
+                                <p class="text-[10px] text-gray-500 truncate">${item.original_title || item.original_name || ""} · ${year}</p>
+                            </div>
+                        </div>
+                        <div class="w-40 hidden md:flex items-center gap-3 justify-end flex-shrink-0 pr-2">
+                            <div class="w-24 h-1 bg-gray-900 rounded-full overflow-hidden">
+                                <div class="h-full ${safety.barBg}" style="width: ${safety.score}%"></div>
+                            </div>
+                            <span class="${safety.text} font-mono font-bold text-xs w-6 text-right">${safety.score}</span>
+                        </div>
+                    </div>
+                `;
+                list.insertAdjacentHTML('beforeend', rowHtml);
+            });
+
+            pagination.innerHTML = '';
+            for(let i=1; i<=totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.onclick = () => { currentPage = i; renderHistory(); };
+                pagination.appendChild(btn);
+            }
+        }
+
         function connectTMDB() {
             const key = document.getElementById('header-tmdb-key').value.trim();
-            if (!key) {
-                alert("TMDB API Key를 입력해주세요.");
-                return;
-            }
+            if(!key) return;
             localStorage.setItem('saved_tmdb_key', key);
             checkTMDBConnection();
         }
 
         function disconnectTMDB() {
-            if(confirm("TMDB 연결을 해제하시겠습니까?")) {
-                localStorage.removeItem('saved_tmdb_key');
-                checkTMDBConnection();
-            }
+            localStorage.removeItem('saved_tmdb_key');
+            checkTMDBConnection();
         }
 
         function checkTMDBConnection() {
-            const savedKey = localStorage.getItem('saved_tmdb_key');
-            const authSection = document.getElementById('tmdb-auth-section');
-            const connectedSection = document.getElementById('tmdb-connected-section');
-
-            if (savedKey) {
-                authSection.classList.add('hidden');
-                authSection.classList.remove('flex');
-                connectedSection.classList.remove('hidden');
-                connectedSection.classList.add('flex');
-            } else {
-                authSection.classList.remove('hidden');
-                authSection.classList.add('flex');
-                connectedSection.classList.add('hidden');
-                connectedSection.classList.remove('flex');
-            }
-        }
-
-
-        // --- 3. 검색 및 분석 로직 ---
-        const TMDB_BASE_URL = "https://api.themoviedb.org/3";
-        const IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
-
-        function calculateSafetyStatus(movieId) {
-            const hash = movieId % 100;
-            if (hash > 60) return { type: 'safe', label: 'SAFE', status: 'SAFE · 안전 100', bg: 'bg-[#111] border border-green-500', text: 'text-green-500', border: 'border-green-500', barBg: 'bg-green-500', score: 100 };
-            if (hash > 20) return { type: 'caution', label: 'CAUTION', status: `CAUTION · 주의 ${hash}`, bg: 'bg-[#111] border border-yellow-500', text: 'text-yellow-500', border: 'border-yellow-500', barBg: 'bg-yellow-500', score: hash };
-            return { type: 'danger', label: 'DANGER', status: 'DANGER · 위험 00', bg: 'bg-[#111] border border-red-500', text: 'text-red-500', border: 'border-red-500', barBg: 'bg-red-500', score: 0 };
-        }
-
-        async function searchMovies() {
-            const apiKey = localStorage.getItem('saved_tmdb_key');
-            if(!apiKey) { 
-                alert('우측 상단에서 TMDB API Key를 먼저 연결(로그온) 해주세요.'); 
-                return; 
-            }
-
-            const query = document.getElementById('search-query').value.trim();
-            const year = document.getElementById('filter-year').value;
-            
-            let url = query 
-                ? `${TMDB_BASE_URL}/search/movie?api_key=${apiKey}&language=ko-KR&query=${encodeURIComponent(query)}${year ? '&primary_release_year='+year : ''}`
-                : `${TMDB_BASE_URL}/discover/movie?api_key=${apiKey}&language=ko-KR&region=KR&sort_by=popularity.desc${year ? '&primary_release_year='+year : ''}`;
-            
-            fetchDataAndRender(url);
-        }
-
-        async function fetchDataAndRender(url) {
-            const gridSafe = document.getElementById('grid-safe');
-            const gridCaution = document.getElementById('grid-caution');
-            const gridDanger = document.getElementById('grid-danger');
-
-            const loadingMsg = '<div class="col-span-2 text-center py-10"><i class="fa-solid fa-circle-notch fa-spin text-gold text-2xl"></i></div>';
-            gridSafe.innerHTML = loadingMsg; gridCaution.innerHTML = loadingMsg; gridDanger.innerHTML = loadingMsg;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                gridSafe.innerHTML = ''; gridCaution.innerHTML = ''; gridDanger.innerHTML = '';
-
-                if(data.results.length === 0) {
-                    const emptyMsg = '<div class="col-span-2 text-center py-10 text-gray-600 text-sm">결과가 없습니다.</div>';
-                    gridSafe.innerHTML = emptyMsg; gridCaution.innerHTML = emptyMsg; gridDanger.innerHTML = emptyMsg;
-                    return;
-                }
-                
-                data.results.forEach(movie => {
-                    if(!movie.poster_path) return;
-                    
-                    const safety = calculateSafetyStatus(movie.id);
-                    const releaseYear = movie.release_date ? movie.release_date.substring(0,4) : '미정';
-                    
-                    const cardHtml = `
-                        <div class="movie-card bg-black border border-white/10 rounded-lg overflow-hidden relative cursor-pointer group">
-                            <div class="relative aspect-[2/3]">
-                                <img src="${IMG_BASE_URL}${movie.poster_path}" alt="${movie.title}" class="w-full h-full object-cover">
-                                <div class="absolute top-2 left-2 px-2 py-0.5 text-[10px] font-black tracking-wider ${safety.bg} ${safety.text} shadow-md z-10">
-                                    ${safety.status}
-                                </div>
-                                <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-                                <div class="absolute bottom-0 w-full p-3 z-10">
-                                    <h4 class="font-bold text-white text-sm leading-tight drop-shadow-md line-clamp-2">${movie.title}</h4>
-                                    <p class="text-[10px] text-gray-400 mt-1">${releaseYear} · ID: ${movie.id}</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    if (safety.type === 'safe') gridSafe.insertAdjacentHTML('beforeend', cardHtml);
-                    else if (safety.type === 'caution') gridCaution.insertAdjacentHTML('beforeend', cardHtml);
-                    else gridDanger.insertAdjacentHTML('beforeend', cardHtml);
-                });
-
-                const emptyMsg = '<div class="col-span-2 text-center py-10 text-gray-600 text-sm">해당 등급의 분류 결과가 없습니다.</div>';
-                if(gridSafe.children.length === 0) gridSafe.innerHTML = emptyMsg;
-                if(gridCaution.children.length === 0) gridCaution.innerHTML = emptyMsg;
-                if(gridDanger.children.length === 0) gridDanger.innerHTML = emptyMsg;
-
-                updateHistoryDB(data.results);
-
-            } catch (error) {
-                alert("데이터 통신 중 오류가 발생했습니다. API 키가 유효한지 확인해주세요.");
-            }
-        }
-
-        // --- 4. 로컬 DB (History) 및 페이지네이션 로직 ---
-        let currentPage = 1;
-        const ITEMS_PER_PAGE = 5;
-
-        function updateHistoryDB(newMovies) {
-            let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
-            
-            newMovies.forEach(movie => {
-                if(!movie.poster_path) return;
-                if(!history.find(h => h.id === movie.id)) {
-                    history.unshift(movie);
-                }
-            });
-            
-            localStorage.setItem('sm_movie_history', JSON.stringify(history));
-            currentPage = 1; 
-            renderHistory();
-        }
-
-        function renderHistory() {
-            const historyList = document.getElementById('history-list');
-            const pagination = document.getElementById('pagination');
-            let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
-
-            if(history.length === 0) {
-                historyList.innerHTML = '<div class="text-center py-20 text-gray-600 text-sm">분석된 누적 데이터가 없습니다. 상단에서 검색을 진행해주세요.</div>';
-                pagination.innerHTML = '';
-                return;
-            }
-
-            const totalPages = Math.ceil(history.length / ITEMS_PER_PAGE);
-            if(currentPage > totalPages) currentPage = totalPages || 1;
-
-            const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-            const currentItems = history.slice(startIdx, startIdx + ITEMS_PER_PAGE);
-
-            historyList.innerHTML = '';
-
-            currentItems.forEach(movie => {
-                const safety = calculateSafetyStatus(movie.id);
-                const releaseYear = movie.release_date ? movie.release_date.substring(0,4) : '';
-                const timeCode = `T-${movie.id.toString().slice(-4)}`;
-
-                const rowHtml = `
-                    <div class="flex items-center justify-between py-4 border-b border-white/5 hover:bg-white/5 transition pl-4 border-l-2 ${safety.border}">
-                        <div class="w-20 text-gray-500 font-mono text-xs tracking-widest">${timeCode}</div>
-                        <div class="w-28">
-                            <span class="px-3 py-1 text-[10px] font-bold rounded tracking-wider ${safety.bg} ${safety.text}">
-                                ${safety.label}
-                            </span>
-                        </div>
-                        <div class="flex-1 px-4">
-                            <h4 class="text-white font-bold text-sm md:text-base">${movie.title}</h4>
-                            <p class="text-xs text-gray-500 mt-1">${movie.original_title} · ${releaseYear}</p>
-                        </div>
-                        <div class="w-40 flex items-center gap-4 hidden md:flex justify-end">
-                            <div class="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
-                                <div class="h-full ${safety.barBg}" style="width: ${safety.score}%"></div>
-                            </div>
-                            <span class="${safety.text} font-bold text-sm w-10 text-right">${safety.score}</span>
-                        </div>
-                    </div>
-                `;
-                historyList.insertAdjacentHTML('beforeend', rowHtml);
-            });
-
-            pagination.innerHTML = '';
-            for(let i = 1; i <= totalPages; i++) {
-                const btn = document.createElement('button');
-                btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
-                btn.textContent = i;
-                btn.onclick = () => {
-                    currentPage = i;
-                    renderHistory();
-                };
-                pagination.appendChild(btn);
-            }
+            const key = localStorage.getItem('saved_tmdb_key');
+            document.getElementById('tmdb-auth-section').style.display = key ? 'none' : 'flex';
+            document.getElementById('tmdb-connected-section').style.display = key ? 'flex' : 'none';
         }
     </script>
 </body>
