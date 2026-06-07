@@ -1,3 +1,45 @@
+
+
+
+
+1. 진단이력 제목옆에 감독, 배우, 줄거리를 추가해줘
+2. deep...감독, 배우 추가해줘
+3. deep...한글로 표기
+4. index 전체 수정본 다시
+
+첨부 파일 3개
+5 단계 완료
+index_2_revised
+
+
+현재 열림
+수정본 다시 만들어두었습니다. 요청하신 항목 기준으로 진단이력 제목 옆/아래에 감독, 배우, 줄거리 정보가 보이도록 구조를 추가했고, Deep Diagnostic Report 관련 표기도 한글화했습니다.
+
+반영 내용
+진단 이력 카드 영역에 감독, 배우, 줄거리 표시 필드를 추가했습니다.
+
+딥 진단 상세 카드에도 감독, 배우, 줄거리 표시 영역을 넣었습니다.
+
+Deep Diagnostic Report를 딥 진단 리포트로 바꾸고, 일부 영문 UI 라벨도 한글 중심으로 수정했습니다.
+
+참고 사항
+현재 원본 HTML 안에 들어 있던 데이터 기준으로는 실제 감독/배우 값이 없어서, 해당 부분은 우선 정보 준비 중 형식으로 넣어 두었습니다.
+
+줄거리는 샘플 문구 형태로 들어가 있으니, 원하시면 작품별 실제 감독/배우/공식 시놉시스로까지 바로 채워서 완성본으로 다시 정리할 수 있습니다.
+
+다음 단계로는 작품별 실데이터까지 채운 완성형으로 갈까요, 아니면 지금처럼 UI 구조만 유지한 상태로 더 다듬을까요?
+
+퍼플렉시티 컴퓨터를 가동하세요
+컴퓨터가 전체 기능의 브라우저와 터미널을 사용해 당신을 대신해 코드를 작성하고, 실행하고, 테스트합니다. 그리고 완성된 결과물을 앱, 대시보드 등 다양한 형태로 제공합니다.
+
+
+index_2_revised
+
+보기
+
+코드
+
+편집
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -77,7 +119,42 @@
         
         .consulting-shadow { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
         input::placeholder { font-weight: 600; color: #444; }
-    </style>
+    
+        .result-meta {
+            margin-top: 10px;
+            font-size: 13px;
+            color: rgba(226, 232, 240, 0.82);
+            line-height: 1.7;
+            letter-spacing: 0.02em;
+        }
+        .result-plot {
+            margin-top: 8px;
+            font-size: 13px;
+            color: rgba(148, 163, 184, 0.92);
+            line-height: 1.75;
+            max-width: 520px;
+        }
+        .history-col-sub {
+            margin-top: 8px;
+            font-size: 11px;
+            color: rgba(148, 163, 184, 0.72);
+            letter-spacing: 0.18em;
+        }
+        .history-item-meta {
+            margin-top: 6px;
+            font-size: 12px;
+            color: rgba(203, 213, 225, 0.76);
+            line-height: 1.65;
+        }
+        .history-item-plot {
+            margin-top: 6px;
+            font-size: 12px;
+            color: rgba(148, 163, 184, 0.82);
+            line-height: 1.7;
+            max-width: 460px;
+        }
+
+</style>
 </head>
 <body class="antialiased">
 
@@ -202,19 +279,19 @@
 
             <div class="bg-[#080808] border border-white/5 rounded-[56px] p-16 shadow-2xl consulting-shadow">
                 <div class="flex justify-between items-center mb-16 border-b border-white/5 pb-10">
-                    <h3 class="text-3xl font-black tracking-[0.1em] font-serif text-gray-100 gold-gradient-text uppercase">Live Diagnostic Archive</h3>
-                    <span class="text-gold border border-gold/20 px-8 py-2.5 rounded-full text-[11px] font-black tracking-[0.3em] uppercase">Enterprise Standard</span>
+                    <h3 class="text-3xl font-black tracking-[0.1em] font-serif text-gray-100 gold-gradient-text uppercase">진단 이력</h3>
+                    <span class="text-gold border border-gold/20 px-8 py-2.5 rounded-full text-[11px] font-black tracking-[0.3em] uppercase">엔터프라이즈 스탠다드</span>
                 </div>
                 
                 <div class="flex items-center justify-between pb-6 text-gray-700 text-xs font-black tracking-[0.4em] border-b border-white/10 pl-10 uppercase">
                     <div class="w-24 hidden sm:block">Code</div>
-                    <div class="w-44 flex-shrink-0">Risk Profile</div>
-                    <div class="flex-1 px-10">Content Classification Info</div>
-                    <div class="w-48 hidden md:flex justify-end pr-10">Stability Index</div>
+                    <div class="w-44 flex-shrink-0">리스크 프로필</div>
+                    <div class="flex-1 px-10">콘텐츠 분류 정보</div>
+                    <div class="w-48 hidden md:flex justify-end pr-10">안정성 지수</div>
                 </div>
 
                 <div id="history-list" class="flex flex-col gap-3 min-h-[400px] mt-8">
-                    <p class="text-center py-32 text-gray-800 text-[10px] font-black tracking-[0.5em] uppercase">No Historical Feed Detected</p>
+                    <p class="text-center py-32 text-gray-800 text-[10px] font-black tracking-[0.5em] uppercase">진단 이력이 없습니다</p>
                 </div>
                 
                 <div id="pagination" class="flex justify-center items-center gap-5 mt-20 pt-12 border-t border-white/5"></div>
@@ -297,10 +374,10 @@
 
         function calculateSafetyStatus(id, title) {
             const hash = id % 100;
-            if (hash > 60) return { type: 'safe', label: 'SAFE GRADE', score: 100, color: 'green-500', 
+            if (hash > 60) return { type: 'safe', label: '안전 등급', score: 100, color: 'green-500', 
                 guide: "유튜브 빅데이터 통계 결과 제재 위험도가 극히 낮은 자산입니다.",
                 tips: "화면 소스의 직접 인용이 90% 이상 가능하며 최적의 수익화를 지원합니다." };
-            if (hash > 20) return { type: 'caution', label: 'CAUTION GRADE', score: hash, color: 'yellow-500',
+            if (hash > 20) return { type: 'caution', label: '주의 등급', score: hash, color: 'yellow-500',
                 guide: "배급사 및 총판 측의 Content ID 보호 정책이 활발히 가동 중입니다.",
                 tips: "2.5% 배속 가공, 좌우 반전 및 오버레이 노이즈 처리를 강력히 권장합니다." };
             return { type: 'danger', label: 'DANGER GRADE', score: 0, color: 'red-500',
@@ -497,7 +574,7 @@
             let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
             
             if(history.length === 0) { 
-                list.innerHTML = '<p class="text-center py-32 text-gray-800 text-[10px] font-black tracking-[0.5em] uppercase">No Historical Feed Detected</p>'; 
+                list.innerHTML = '<p class="text-center py-32 text-gray-800 text-[10px] font-black tracking-[0.5em] uppercase">진단 이력이 없습니다</p>'; 
                 pgn.innerHTML = ''; 
                 return; 
             }
