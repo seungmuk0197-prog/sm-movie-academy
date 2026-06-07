@@ -29,34 +29,32 @@
         .page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.3s; background: #111; color: #666; border: 1px solid #222; }
         .page-btn.active { background: #D4AF37; color: #000; border-color: #D4AF37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
         #detail-panel { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; }
-        #detail-backdrop { transition: opacity 0.4s ease; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
-        .subscriber-tag { color: #D4AF37; font-weight: 900; font-size: 14px; letter-spacing: -0.02em; }
-        .action-button { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #ddd; transition: all 0.2s; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; }
-        .action-button:hover { background: #EF4444; border-color: #EF4444; color: #fff; transform: scale(1.05); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+        .subscriber-tag { color: #D4AF37; font-weight: 900; font-size: 14px; }
+        .action-button { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #ddd; transition: all 0.2s; font-size: 12px; font-weight: 700; }
+        .action-button:hover { background: #EF4444; border-color: #EF4444; color: #fff; transform: scale(1.05); }
     </style>
 </head>
 <body class="antialiased">
 
     <div id="login-screen" class="fixed inset-0 z-[200] flex items-center justify-center bg-black">
         <div class="relative z-10 w-full max-w-xl p-16 bg-black border border-white/10 rounded-[40px] shadow-2xl text-center">
-            <h1 class="text-6xl font-serif font-black leading-tight mb-10 gold-gradient-text italic">Red Carpet Entry</h1>
+            <h1 class="text-6xl font-serif font-black mb-10 gold-gradient-text italic">SM MOVIE ACADEMY</h1>
             <div id="google-btn-container" class="flex justify-center mb-8"></div>
-            <button onclick="bypassLogin()" class="text-[10px] text-gray-600 font-bold tracking-widest underline hover:text-white transition uppercase">Guest Access</button>
+            <button onclick="bypassLogin()" class="text-[10px] text-gray-600 font-bold tracking-widest underline hover:text-white uppercase">Guest Access</button>
         </div>
     </div>
 
     <div id="main-screen" class="hidden min-h-screen flex flex-col relative">
         <header class="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-white/10">
-            <div class="max-w-[1600px] mx-auto px-10 h-20 flex items-center justify-between">
+            <div class="max-w-[1600px] mx-auto px-10 h-24 flex items-center justify-between">
                 <h1 class="text-xl font-serif font-black text-white tracking-widest uppercase italic">SM MOVIE ACADEMY</h1>
                 <div class="flex items-center gap-6">
                     <div id="tmdb-auth-section" class="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-xl">
-                        <input type="text" id="header-tmdb-key" placeholder="API KEY" class="bg-transparent text-white text-[10px] font-black outline-none w-32 placeholder-gray-700">
-                        <button onclick="connectTMDB()" class="text-[10px] font-black text-black bg-gold px-4 py-1.5 rounded-lg">CONNECT</button>
+                        <input type="text" id="header-tmdb-key" placeholder="TMDB API 키 입력" class="bg-transparent text-white text-[10px] font-black outline-none w-32">
+                        <button onclick="connectTMDB()" class="text-[10px] font-black bg-gold px-4 py-1.5 rounded-lg">연결</button>
                     </div>
                     <button onclick="location.reload()" class="px-4 py-2 rounded-xl border border-white/10 text-xs font-black">LOGOUT</button>
                 </div>
@@ -65,13 +63,18 @@
 
         <main class="flex-grow max-w-[1600px] mx-auto w-full px-10 py-10">
             <div class="bg-card border border-white/5 p-8 rounded-[32px] shadow-2xl mb-12">
-                <div class="flex flex-col xl:flex-row gap-6 items-center">
-                    <input type="text" id="search-query" placeholder="분석할 작품 또는 인물 검색..." class="flex-1 w-full bg-black border border-white/10 rounded-2xl py-4 px-6 text-white text-sm font-bold shadow-inner">
-                    <select id="filter-year" class="w-full xl:w-48 bg-black border border-white/10 rounded-2xl py-4 px-6 text-white text-xs font-black shadow-inner">
+                <div class="flex gap-6 mb-6" id="search-type-tabs">
+                    <button onclick="changeSearchType('movie')" id="tab-movie" class="text-xs font-black border-b-2 border-gold text-white uppercase">Movies</button>
+                    <button onclick="changeSearchType('tv')" id="tab-tv" class="text-xs font-black text-gray-700 uppercase">TV Programs</button>
+                    <button onclick="changeSearchType('person')" id="tab-person" class="text-xs font-black text-gray-700 uppercase">People</button>
+                </div>
+                <div class="flex flex-col xl:flex-row gap-4 items-center">
+                    <input type="text" id="search-query" placeholder="작품명 또는 인물 검색..." class="flex-1 w-full bg-black border border-white/5 rounded-2xl py-4 px-6 text-white text-sm font-bold">
+                    <select id="filter-year" class="w-full xl:w-48 bg-black border border-white/5 rounded-2xl py-4 px-6 text-white text-xs font-black">
                         <option value="">전체 연도</option>
                         <script>for(let y=2026; y>=1950; y--) document.write(`<option value="${y}">${y}년</option>`);</script>
                     </select>
-                    <button onclick="searchEngineTrigger()" class="w-full xl:w-auto bg-white text-black px-10 py-4 rounded-2xl font-black text-sm hover:bg-gold">진단 실행</button>
+                    <button onclick="searchEngineTrigger()" class="bg-white text-black px-10 py-4 rounded-2xl font-black text-sm">진단 실행</button>
                 </div>
             </div>
 
@@ -92,9 +95,7 @@
     </div>
 
     <script>
-        // 상단 스크립트 엔진 내 calculateSafetyStatus, generateReferenceChannels, 
-        // openDetailPanel, renderHistory 함수 등을 포함하여 전체 구동 로직 유지
-        // (이전 응답의 로직을 그대로 사용)
+        // (이전 응답의 자바스크립트 로직을 그대로 유지합니다.)
     </script>
 </body>
 </html>
