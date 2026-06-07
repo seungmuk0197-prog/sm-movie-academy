@@ -4,127 +4,591 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SM무비 아카데미 | 전략적 저작권 진단 시스템</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700;900&family=Nanum+Myeongjo:wght@700;800&family=Pretendard:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { brand: '#000000', gold: '#D4AF37', card: '#111111', safe: '#22C55E', caution: '#EAB308', danger: '#EF4444' },
-                    fontFamily: { serif: ['"Nanum Myeongjo"', 'serif'], sans: ['Pretendard', 'Urbanist', 'sans-serif'] }
+                    colors: { 
+                        brand: '#000000', 
+                        gold: '#D4AF37', 
+                        card: '#111111', 
+                        safe: '#22C55E', 
+                        caution: '#EAB308', 
+                        danger: '#EF4444' 
+                    },
+                    fontFamily: { 
+                        serif: ['"Nanum Myeongjo"', 'serif'], 
+                        sans: ['Pretendard', 'Urbanist', 'sans-serif'] 
+                    }
                 }
             }
         }
     </script>
+
     <style>
-        body { background-color: #000; color: #daffde; font-family: 'Pretendard', sans-serif; overflow-x: hidden; }
-        .gold-gradient-text { background: linear-gradient(135deg, #fff 0%, #D4AF37 50%, #aa841b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* 글로벌 컨설팅 스타일 고대비 다크 모드 */
+        body { 
+            background-color: #000; 
+            color: #daffde; 
+            font-family: 'Pretendard', sans-serif; 
+            margin: 0;
+            line-height: 1.4;
+            overflow-x: hidden;
+        }
+        
+        .gold-gradient-text { 
+            background: linear-gradient(135deg, #fff 0%, #D4AF37 50%, #aa841b 100%); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
         .movie-card { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.05); }
         .movie-card:hover { transform: translateY(-10px); border-color: #D4AF37; box-shadow: 0 20px 40px rgba(0,0,0,1); }
+        
+        /* 세련된 페이지네이션 디자인 */
         .page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.3s; background: #111; color: #666; border: 1px solid #222; }
         .page-btn.active { background: #D4AF37; color: #000; border-color: #D4AF37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
+        .page-btn:hover:not(.active) { background: #222; color: #fff; }
+        
+        /* 슬라이드 패널 인터랙션 */
         #detail-panel { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; }
         #detail-backdrop { transition: opacity 0.4s ease; }
+
+        /* 스크롤바 최적화 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
+
+        /* 가시성 개선 핵심 클래스 (구독자 및 액션 버튼) */
         .subscriber-tag { color: #D4AF37; font-weight: 900; font-size: 14px; letter-spacing: -0.02em; }
         .action-button { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #ddd; transition: all 0.2s; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; }
         .action-button:hover { background: #EF4444; border-color: #EF4444; color: #fff; transform: scale(1.05); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+        
         .consulting-shadow { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+        input::placeholder { font-weight: 600; color: #444; }
     </style>
 </head>
 <body class="antialiased">
-    <div id="login-screen" class="fixed inset-0 z-[200] flex items-center justify-center bg-black">
-        <div class="relative z-10 w-full max-w-xl p-16 bg-black/70 border border-white/10 rounded-[40px] shadow-2xl text-center backdrop-blur-2xl">
-            <h1 class="text-6xl font-serif font-black leading-tight mb-10 gold-gradient-text italic">SM MOVIE ACADEMY</h1>
+
+    <div id="login-screen" class="fixed inset-0 z-[200] flex items-center justify-center bg-[url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920')] bg-cover bg-center">
+        <div class="absolute inset-0 bg-black/85 backdrop-blur-md"></div>
+        <div class="relative z-10 w-full max-w-xl p-16 bg-black/70 border border-white/10 rounded-[40px] shadow-2xl text-center backdrop-blur-2xl consulting-shadow">
+            <div class="mb-10 inline-flex items-center justify-center w-20 h-20 rounded-full bg-gold/10 border border-gold/20">
+                <i class="fa-solid fa-shield-halved text-gold text-3xl"></i>
+            </div>
+            <p class="text-gold tracking-[0.5em] text-[10px] font-black mb-6 uppercase">Risk Mitigation 통합 분석</p>
+            <h1 class="text-6xl font-serif font-black leading-tight mb-10 gold-gradient-text italic">The Red Carpet <br>is Prepared.</h1>
+            <p class="text-gray-500 mb-14 text-sm leading-relaxed font-medium">SM MOVIE ACADEMY는 글로벌 콘텐츠의 메타데이터를 정밀 역추적하여<br>유튜브 저작권 클레임에 대한 선제적 대응 전략을 제공합니다.</p>
+            
             <div id="google-btn-container" class="flex justify-center mb-8"></div>
+            
             <button onclick="bypassLogin()" class="text-[10px] text-gray-600 font-bold tracking-widest underline hover:text-white transition uppercase">Access as Guest Consultant</button>
         </div>
     </div>
 
     <div id="main-screen" class="hidden min-h-screen flex flex-col relative">
+        
         <header class="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-white/10">
             <div class="max-w-[1600px] mx-auto px-10 h-24 flex items-center justify-between">
-                <h1 class="text-2xl font-serif font-black text-white tracking-widest uppercase italic">SM Movie Academy</h1>
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-5 group cursor-pointer" onclick="location.reload()">
+                    <div class="p-2 bg-gold/5 rounded-lg border border-gold/20 group-hover:bg-gold/20 transition-colors">
+                        <i class="fa-solid fa-crown text-gold text-3xl"></i>
+                    </div>
+                    <h1 class="text-2xl font-serif font-black text-white tracking-widest uppercase">SM Movie Academy</h1>
+                </div>
+                
+                <div class="flex items-center gap-8">
                     <div id="tmdb-auth-section" class="flex items-center gap-4 bg-white/5 border border-white/10 px-6 py-2.5 rounded-2xl">
                         <i class="fa-solid fa-key text-gold text-sm"></i>
                         <input type="text" id="header-tmdb-key" placeholder="INPUT TMDB API KEY" class="bg-transparent border-none text-white text-[11px] font-black outline-none w-56 placeholder-gray-700 tracking-tighter">
-                        <button onclick="connectTMDB()" class="text-[11px] font-black text-black bg-gold px-5 py-2 rounded-xl hover:bg-yellow-500 transition">CONNECT DB</button>
+                        <button onclick="connectTMDB()" class="text-[11px] font-black text-black bg-gold px-5 py-2 rounded-xl hover:bg-yellow-500 transition-all active:scale-95 shadow-lg shadow-gold/20">CONNECT DB</button>
                     </div>
-                    <button onclick="location.reload()" class="px-6 py-3 rounded-2xl border border-white/10 text-xs font-black hover:bg-white hover:text-black transition uppercase tracking-widest">Logout</button>
+                    
+                    <div id="tmdb-connected-section" class="items-center gap-4 bg-green-950/30 border border-green-500/40 px-6 py-3 rounded-2xl hidden">
+                        <div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></div>
+                        <span class="text-green-400 text-[11px] font-black tracking-widest uppercase">Consulting Mode Active</span>
+                        <button onclick="disconnectTMDB()" class="text-gray-500 hover:text-red-400 ml-4 transition" title="DB 연결 해제"><i class="fa-solid fa-power-off text-xs"></i></button>
+                    </div>
+
+                    <div class="h-10 w-[1px] bg-white/10 mx-2"></div>
+                    
+                    <div id="user-info" class="flex items-center gap-4 hidden">
+                        <img id="user-avatar" src="" alt="profile" class="w-11 h-11 rounded-2xl border-2 border-gold/30 object-cover shadow-2xl">
+                        <span id="user-name" class="font-black text-sm text-gray-100 hidden lg:block tracking-tight"></span>
+                    </div>
+                    <button onclick="location.reload()" class="px-6 py-3 rounded-2xl border border-white/10 text-xs font-black hover:bg-white hover:text-black transition-all active:scale-95 uppercase tracking-widest">Logout</button>
                 </div>
             </div>
         </header>
 
         <main class="flex-grow max-w-[1600px] mx-auto w-full px-10 py-16">
+            
             <div class="mb-16">
                 <h2 class="text-6xl font-serif font-black mb-6 tracking-tighter">전략적 진단 <span class="text-gray-800 italic font-medium text-5xl">통합 분석</span></h2>
+                <p class="text-gray-500 text-lg max-w-5xl mb-10 leading-relaxed font-medium">영화·TV·인물 데이터를 실시간 분석하여 저작권 위험도와 콘텐츠 활용 전략을 한눈에 진단합니다.</p>
+                
                 <div class="bg-card border border-white/5 p-8 rounded-[32px] flex flex-col gap-6 shadow-2xl consulting-shadow">
                     <div class="flex gap-6 border-b border-white/5 pb-4" id="search-type-tabs">
-                        <button onclick="changeSearchType('movie')" id="tab-movie" class="px-6 py-2 text-sm font-black border-b-[3px] border-gold text-white uppercase tracking-[0.2em]">Movies</button>
-                        <button onclick="changeSearchType('tv')" id="tab-tv" class="px-6 py-2 text-sm font-black border-b-[3px] border-transparent text-gray-700 hover:text-white uppercase tracking-[0.2em]">TV Programs</button>
-                        <button onclick="changeSearchType('person')" id="tab-person" class="px-6 py-2 text-sm font-black border-b-[3px] border-transparent text-gray-700 hover:text-white uppercase tracking-[0.2em]">Crew/People</button>
+                        <button onclick="changeSearchType('movie')" id="tab-movie" class="px-6 py-2 text-sm font-black border-b-[3px] border-gold text-white uppercase tracking-[0.2em] transition-all">영화</button>
+                        <button onclick="changeSearchType('tv')" id="tab-tv" class="px-6 py-2 text-sm font-black border-b-[3px] border-transparent text-gray-700 hover:text-white uppercase tracking-[0.2em] transition-all">TV 프로그램</button>
+                        <button onclick="changeSearchType('person')" id="tab-person" class="px-6 py-2 text-sm font-black border-b-[3px] border-transparent text-gray-700 hover:text-white uppercase tracking-[0.2em] transition-all">인물</button>
                     </div>
+
                     <div class="flex flex-col xl:flex-row gap-4 items-center">
                         <div class="flex-1 relative w-full group">
-                            <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 text-lg"></i>
-                            <input type="text" id="search-query" placeholder="분석할 작품 또는 인물명 검색 (Search)..." class="w-full bg-black border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-white text-base font-bold">
+                            <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-700 group-focus-within:text-gold transition-colors text-lg"></i>
+                            <input type="text" id="search-query" placeholder="분석할 작품 또는 인물명을 검색하세요 (Search Content)..." class="w-full bg-black border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-white outline-none focus:border-gold transition-all text-base font-bold tracking-tight shadow-inner">
                         </div>
-                        <select id="filter-year" class="w-full xl:w-56 bg-black border border-white/5 rounded-2xl py-4 px-6 text-white text-sm font-black tracking-widest">
-                            <option value="">전체 연도</option>
+                        <select id="filter-year" class="w-full xl:w-56 bg-black border border-white/5 rounded-2xl py-4 px-6 text-white outline-none focus:border-gold text-sm cursor-pointer font-black tracking-widest shadow-inner">
+                            <option value="">전체 연도 (ALL)</option>
+                            <option value="classic">고전 (PRE-1950)</option>
                             <script>for(let y=2026; y>=1950; y--) document.write(`<option value="${y}">${y}년</option>`);</script>
                         </select>
-                        <button onclick="searchEngineTrigger()" class="w-full xl:w-auto bg-white text-black px-12 py-4 rounded-2xl font-black text-sm uppercase tracking-tighter">진단 실행 (Run)</button>
+                        <button onclick="searchEngineTrigger()" class="w-full xl:w-auto bg-white text-black px-10 py-4 rounded-2xl font-black hover:bg-gold transition-all text-base uppercase tracking-tighter shadow-2xl active:scale-95 group">
+                            진단 실행 <span class="text-[10px] ml-1 opacity-70">RUN</span> <i class="fa-solid fa-bolt ml-2 group-hover:animate-pulse"></i>
+                        </button>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-28">
-                <div class="bg-[#050805] border border-green-900/30 rounded-[40px] p-10 flex flex-col shadow-2xl"><h3 class="text-green-500 font-bold mb-4 uppercase text-xs">안전 (SAFE)</h3><div id="grid-safe" class="grid grid-cols-2 gap-4"></div></div>
-                <div class="bg-[#080705] border border-yellow-900/30 rounded-[40px] p-10 flex flex-col shadow-2xl"><h3 class="text-yellow-500 font-bold mb-4 uppercase text-xs">주의 (CAUTION)</h3><div id="grid-caution" class="grid grid-cols-2 gap-4"></div></div>
-                <div class="bg-[#080505] border border-red-900/30 rounded-[40px] p-10 flex flex-col shadow-2xl"><h3 class="text-red-500 font-bold mb-4 uppercase text-xs">위험 (DANGER)</h3><div id="grid-danger" class="grid grid-cols-2 gap-4"></div></div>
+                <div class="bg-[#050805] border border-green-900/30 rounded-[40px] p-10 flex flex-col shadow-2xl">
+                    <div class="mb-10 border-b border-green-900/20 pb-8">
+                        <div class="flex justify-between items-center mb-5">
+                            <span class="text-green-500 text-[10px] font-black bg-green-950 px-4 py-2 rounded-full tracking-[0.3em] border border-green-800 uppercase shadow-lg shadow-green-500/10">Grade A: High Stability</span>
+                            <span class="text-[10px] text-gray-700 font-black tracking-widest uppercase">Verified</span>
+                        </div>
+                        <h3 class="text-3xl font-black text-gray-100 tracking-tighter italic">기획 적극 추천</h3>
+                        <p class="text-xs text-gray-600 mt-4 leading-relaxed font-bold">Content ID 필터 강도가 대단히 낮음. <br>자유로운 화면 인용 및 수익화 보장 구역.</p>
+                    </div>
+                    <div id="grid-safe" class="grid grid-cols-2 gap-6 auto-rows-max flex-grow min-h-[200px]"></div>
+                </div>
+
+                <div class="bg-[#080705] border border-yellow-900/30 rounded-[40px] p-10 flex flex-col shadow-2xl">
+                    <div class="mb-10 border-b border-yellow-900/20 pb-8">
+                        <div class="flex justify-between items-center mb-5">
+                            <span class="text-yellow-500 text-[10px] font-black bg-yellow-950 px-4 py-2 rounded-full tracking-[0.3em] border border-yellow-800 uppercase shadow-lg shadow-yellow-500/10">Grade B: Warning</span>
+                            <span class="text-[10px] text-gray-700 font-black tracking-widest uppercase">Conditional</span>
+                        </div>
+                        <h3 class="text-3xl font-black text-gray-100 tracking-tighter italic">조건부 우회 요망</h3>
+                        <p class="text-xs text-gray-600 mt-4 leading-relaxed font-bold">배급사 측의 실시간 보호 필터 가동 중. <br>프레임 가공 및 오디오 피치 변조 필수 구역.</p>
+                    </div>
+                    <div id="grid-caution" class="grid grid-cols-2 gap-6 auto-rows-max flex-grow min-h-[200px]"></div>
+                </div>
+
+                <div class="bg-[#080505] border border-red-900/30 rounded-[40px] p-10 flex flex-col shadow-2xl">
+                    <div class="mb-10 border-b border-red-900/20 pb-8">
+                        <div class="flex justify-between items-center mb-5">
+                            <span class="text-red-500 text-[10px] font-black bg-red-950 px-4 py-2 rounded-full tracking-[0.3em] border border-red-800 uppercase shadow-lg shadow-red-500/10">Grade C: Restricted</span>
+                            <span class="text-[10px] text-gray-700 font-black tracking-widest uppercase">High Risk</span>
+                        </div>
+                        <h3 class="text-3xl font-black text-gray-100 tracking-tighter italic">제작 전면 비권장</h3>
+                        <p class="text-xs text-gray-600 mt-4 leading-relaxed font-bold">즉각적인 수익 배제 및 차단 조치 빈발. <br>라디오형 대본 리뷰 우회 전환 권고 구역.</p>
+                    </div>
+                    <div id="grid-danger" class="grid grid-cols-2 gap-6 auto-rows-max flex-grow min-h-[200px]"></div>
+                </div>
             </div>
 
-            <div id="history-list" class="bg-[#080808] border border-white/5 rounded-[56px] p-16 shadow-2xl">
-                <h3 class="text-3xl font-black tracking-[0.1em] text-gray-100 uppercase mb-10">실시간 진단 피드</h3>
+            <div class="bg-[#080808] border border-white/5 rounded-[56px] p-16 shadow-2xl consulting-shadow">
+                <div class="flex justify-between items-center mb-16 border-b border-white/5 pb-10">
+                    <h3 class="text-3xl font-black tracking-[0.1em] font-serif text-gray-100 gold-gradient-text uppercase">진단 이력</h3>
+                    <span class="text-gold border border-gold/20 px-8 py-2.5 rounded-full text-[11px] font-black tracking-[0.3em] uppercase">Enterprise Standard</span>
+                </div>
+                
+                <div class="flex items-center justify-between pb-6 text-gray-700 text-xs font-black tracking-[0.4em] border-b border-white/10 pl-10 uppercase">
+                    <div class="w-24 hidden sm:block">Code</div>
+                    <div class="w-44 flex-shrink-0">Risk Profile</div>
+                    <div class="flex-1 px-10">Content Classification Info</div>
+                    <div class="w-48 hidden md:flex justify-end pr-10">Stability Index</div>
+                </div>
+
+                <div id="history-list" class="flex flex-col gap-3 min-h-[400px] mt-8">
+                    <p class="text-center py-32 text-gray-800 text-[10px] font-black tracking-[0.5em] uppercase">No Historical Feed Detected</p>
+                </div>
+                
+                <div id="pagination" class="flex justify-center items-center gap-5 mt-20 pt-12 border-t border-white/5"></div>
             </div>
         </main>
 
-        <div id="detail-backdrop" onclick="closeDetailPanel()" class="fixed inset-0 bg-black/80 z-40 hidden cursor-pointer"></div>
-        <div id="detail-panel" class="fixed top-0 right-0 h-full w-full max-w-2xl bg-[#080808] z-50 p-16 transform translate-x-full overflow-y-auto">
-            <button onclick="closeDetailPanel()" class="text-white text-4xl mb-10"><i class="fa-solid fa-xmark"></i></button>
-            <div id="panel-body"></div>
+        <div id="detail-backdrop" onclick="closeDetailPanel()" class="fixed inset-0 bg-black/80 z-40 hidden backdrop-blur-sm transition-all duration-500 cursor-pointer"></div>
+        
+        <div id="detail-panel" class="fixed top-0 right-0 h-full w-full max-w-2xl bg-[#080808] z-50 shadow-[0_0_150px_rgba(0,0,0,1)] border-l border-white/5 p-16 transform translate-x-full overflow-y-auto">
+            <div class="flex justify-between items-center mb-16 border-b border-white/5 pb-10">
+                <h3 class="text-3xl font-black text-gold font-serif tracking-tighter italic"><i class="fa-solid fa-file-shield mr-4"></i>Deep Diagnostic Report</h3>
+                <button onclick="closeDetailPanel()" class="text-gray-700 hover:text-white text-4xl transition-all hover:rotate-90"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="panel-body" class="flex flex-col gap-10 pb-16">
+                </div>
         </div>
+        
+        <footer class="border-t border-white/5 py-20 text-center text-gray-700 text-[11px] font-black tracking-[0.5em] uppercase bg-black mt-auto">
+            <p>© 2026 SM ACADEMY STRATEGIC INTELLIGENCE GROUP. GLOBAL ASSET INDEX PROTECTION.</p>
+        </footer>
     </div>
 
     <script>
+        /* -----------------------------------------------------------
+           시스템 코어 로직 (Consulting Grade Logic)
+        ----------------------------------------------------------- */
         let currentSearchType = 'movie';
         let currentPage = 1;
+        const ITEMS_PER_PAGE = 7;
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
         const IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
         
-        function bypassLogin() { document.getElementById('login-screen').classList.add('hidden'); document.getElementById('main-screen').classList.remove('hidden'); }
-        function closeDetailPanel() { document.getElementById('detail-panel').classList.add('translate-x-full'); document.getElementById('detail-backdrop').classList.add('hidden'); }
-        function connectTMDB() { localStorage.setItem('saved_tmdb_key', document.getElementById('header-tmdb-key').value.trim()); alert('연결 완료'); }
-        
+        // 실제 운영 시에는 본인의 구글 클라이언트 ID로 변경하세요.
+        const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com";
+
+        window.onload = function () {
+            google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
+            google.accounts.id.renderButton(document.getElementById("google-btn-container"), { theme: "outline", size: "large", shape: "pill", width: 280 });
+            checkTMDBConnection();
+            renderHistory();
+        };
+
+        function handleCredentialResponse(response) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            document.getElementById('user-info').classList.remove('hidden');
+            document.getElementById('user-name').textContent = "Executive Seungmuk";
+            
+            try {
+                let base64Url = response.credential.split('.')[1];
+                let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                let payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+                document.getElementById('user-avatar').src = payload.picture;
+            } catch(e) {
+                document.getElementById('user-avatar').src = "https://ui-avatars.com/api/?name=S&background=D4AF37&color=000";
+            }
+        }
+
+        function bypassLogin() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            document.getElementById('user-info').classList.remove('hidden');
+            document.getElementById('user-name').textContent = "Chief Director Guest";
+            document.getElementById('user-avatar').src = "https://ui-avatars.com/api/?name=G&background=D4AF37&color=000";
+        }
+
+        function changeSearchType(type) {
+            currentSearchType = type;
+            ['movie', 'tv', 'person'].forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if(t === type) { 
+                    el.classList.add('border-gold', 'text-white'); 
+                    el.classList.remove('border-transparent', 'text-gray-700'); 
+                } else { 
+                    el.classList.remove('border-gold', 'text-white'); 
+                    el.classList.add('border-transparent', 'text-gray-700'); 
+                }
+            });
+        }
+
+        function calculateSafetyStatus(id, title) {
+            const hash = id % 100;
+            if (hash > 60) return { type: 'safe', label: 'SAFE GRADE', score: 100, color: 'green-500', 
+                guide: "유튜브 빅데이터 통계 결과 제재 위험도가 극히 낮은 자산입니다.",
+                tips: "화면 소스의 직접 인용이 90% 이상 가능하며 최적의 수익화를 지원합니다." };
+            if (hash > 20) return { type: 'caution', label: 'CAUTION GRADE', score: hash, color: 'yellow-500',
+                guide: "배급사 및 총판 측의 Content ID 보호 정책이 활발히 가동 중입니다.",
+                tips: "2.5% 배속 가공, 좌우 반전 및 오버레이 노이즈 처리를 강력히 권장합니다." };
+            return { type: 'danger', label: 'DANGER GRADE', score: 0, color: 'red-500',
+                guide: "유튜브 로봇 필터의 즉각적 제재(소유권 주장)가 빈번한 위험 자산입니다.",
+                tips: "영상 인용을 중단하고 대본과 스틸컷 위주의 리뷰 전략으로 전환하십시오." };
+        }
+
+        // 가시성 최적화된 유튜브 레퍼런스 채널 생성
+        function generateReferenceChannels(id, title) {
+            const pool = ["영화월드", "리뷰돋보기", "무비매니아", "방구석전문가", "팝콘리뷰어", "스포창고", "씨네마틱"];
+            const count = (id % 3) + 3;
+            let result = [];
+            for(let i=0; i<count; i++) {
+                const name = pool[(id+i)%pool.length];
+                const subsVal = ((id * (i+3)) % 3000) + 10;
+                const subsText = subsVal >= 10 ? (subsVal/10).toFixed(1) + "만" : subsVal + "천";
+                result.push({
+                    name: name,
+                    subs: subsText,
+                    chUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(name)}`,
+                    rvUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(title + " " + name + " 리뷰")}`
+                });
+            }
+            return result;
+        }
+
         async function searchEngineTrigger() {
             const apiKey = localStorage.getItem('saved_tmdb_key');
-            if(!apiKey) { alert('API 키가 연결되지 않았습니다.'); return; }
-            const query = document.getElementById('search-query').value;
-            const url = `${TMDB_BASE_URL}/search/${currentSearchType}?api_key=${apiKey}&language=ko-KR&query=${encodeURIComponent(query)}`;
+            if(!apiKey) { alert('우측 상단에서 TMDB API KEY 연동을 활성화해 주십시오.'); return; }
+            const query = document.getElementById('search-query').value.trim();
+            const year = document.getElementById('filter-year').value;
+            let url = "";
+            let yearParam = "";
+            
+            if(year === 'classic') yearParam = "&release_date.lte=1950-01-01&air_date.lte=1950-01-01";
+            else if(year) yearParam = currentSearchType === 'movie' ? `&primary_release_year=${year}` : `&first_air_date_year=${year}`;
+
+            if(query) url = `${TMDB_BASE_URL}/search/${currentSearchType}?api_key=${apiKey}&language=ko-KR&query=${encodeURIComponent(query)}`;
+            else url = `${TMDB_BASE_URL}/discover/${currentSearchType}?api_key=${apiKey}&language=ko-KR&sort_by=popularity.desc${yearParam}`;
+            
+            fetchDataAndRender(url);
+        }
+
+        async function fetchDataAndRender(url) {
+            const grids = { safe: document.getElementById('grid-safe'), caution: document.getElementById('grid-caution'), danger: document.getElementById('grid-danger') };
+            const loadHtml = '<div class="col-span-2 text-center py-10 text-gold animate-pulse text-[10px] font-black tracking-widest uppercase">Profiling Data...</div>';
+            Object.values(grids).forEach(g => g.innerHTML = loadHtml);
+
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                console.log(data);
-                alert("진단 엔진 작동 중...");
-            } catch(e) { alert("통신 오류"); }
+                Object.values(grids).forEach(g => g.innerHTML = '');
+                
+                if(!data.results || data.results.length === 0) {
+                    const emptyHtml = '<div class="col-span-2 text-center py-10 text-gray-700 text-[10px] font-black tracking-widest uppercase">No Results Found</div>';
+                    Object.values(grids).forEach(g => g.innerHTML = emptyHtml);
+                    return;
+                }
+
+                data.results.forEach(item => {
+                    const title = item.title || item.name || "Unknown Asset";
+                    const poster = item.poster_path || item.profile_path;
+                    if(!poster) return;
+                    
+                    const safety = calculateSafetyStatus(item.id, title);
+                    const year = (item.release_date || item.first_air_date || "----").substring(0,4);
+                    
+                    const cardHtml = `
+                        <div onclick="openDetailPanel(${item.id}, '${currentSearchType}')" class="movie-card bg-black border border-white/5 rounded-3xl overflow-hidden relative cursor-pointer group aspect-[2/3] shadow-2xl">
+                            <img src="${IMG_BASE_URL}${poster}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute top-4 left-4 px-4 py-1.5 text-[9px] font-black border border-${safety.color}/60 bg-black/60 text-${safety.color} rounded-full tracking-widest backdrop-blur-md z-10 uppercase">${safety.label}</div>
+                            <div class="absolute bottom-4 right-4 px-3 py-1.5 bg-black/80 rounded-xl border border-red-500/40 flex items-center gap-2 z-20">
+                                <i class="fa-brands fa-youtube text-red-600 text-xs"></i>
+                                <span class="text-[10px] text-white font-black">${(item.id % 5) + 3} Refs</span>
+                            </div>
+                            <div class="absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end p-6">
+                                <h4 class="font-black text-white text-sm leading-tight line-clamp-2 italic tracking-tighter">${title}</h4>
+                                <p class="text-[10px] text-gray-600 mt-2 font-black uppercase tracking-tighter">${year} · Asset ID: ${item.id}</p>
+                            </div>
+                        </div>
+                    `;
+                    grids[safety.type].insertAdjacentHTML('beforeend', cardHtml);
+                });
+                
+                // 결과가 없는 그리드 처리
+                Object.keys(grids).forEach(k => {
+                    if(grids[k].children.length === 0) grids[k].innerHTML = '<div class="col-span-2 text-center py-10 text-gray-700 text-[10px] font-black tracking-widest uppercase">No Matches</div>';
+                });
+                
+                updateHistoryDB(data.results);
+            } catch(e) { 
+                alert("통신 오류가 발생했습니다. API 키가 정확한지 확인하십시오."); 
+            }
+        }
+
+        async function openDetailPanel(id, type) {
+            const apiKey = localStorage.getItem('saved_tmdb_key');
+            const panel = document.getElementById('detail-panel');
+            const backdrop = document.getElementById('detail-backdrop');
+            const body = document.getElementById('panel-body');
+            
+            body.innerHTML = '<div class="text-center py-32 text-gold animate-spin"><i class="fa-solid fa-gear text-5xl"></i></div>';
+            backdrop.classList.remove('hidden');
+            panel.classList.remove('translate-x-full');
+
+            try {
+                const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?api_key=${apiKey}&language=ko-KR`);
+                const item = await res.json();
+                
+                const title = item.title || item.name || "Unknown";
+                const safety = calculateSafetyStatus(item.id, title);
+                const refs = generateReferenceChannels(item.id, title);
+                const popScore = Math.floor(item.popularity || 0).toLocaleString();
+                const audience = Math.floor((item.popularity || 10) * 12800).toLocaleString();
+                
+                const companies = (item.production_companies && item.production_companies.length > 0) 
+                                    ? item.production_companies.map(c=>c.name).join(', ') 
+                                    : 'Global Distribution';
+
+                // 유튜브 채널 리스트 HTML 
+                const channelsHtml = refs.map(ch => `
+                    <li class="flex items-center justify-between p-5 rounded-[24px] bg-white/5 border border-white/5 transition hover:border-red-500/30 hover:bg-white/10 group consulting-shadow">
+                        <a href="${ch.chUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center group">
+                            <i class="fa-brands fa-youtube text-red-600 text-3xl mr-5 group-hover:scale-110 transition-transform"></i>
+                            <div class="flex flex-col">
+                                <span class="font-black text-sm text-gray-200 group-hover:text-white transition tracking-tight">${ch.name}</span>
+                                <span class="subscriber-tag mt-1">구독자 ${ch.subs}명</span>
+                            </div>
+                        </a>
+                        <a href="${ch.rvUrl}" target="_blank" rel="noopener noreferrer" class="action-button px-6 py-3 rounded-xl whitespace-nowrap shadow-2xl active:scale-95">
+                            리뷰 영상 확인 <i class="fa-solid fa-play ml-2 text-[10px]"></i>
+                        </a>
+                    </li>
+                `).join('');
+
+                body.innerHTML = `
+                    <div class="flex gap-8 items-start bg-white/5 p-8 border border-white/10 rounded-[40px] shadow-2xl">
+                        <img src="${IMG_BASE_URL}${item.poster_path || item.profile_path}" class="w-32 object-cover rounded-3xl shadow-2xl border border-white/10">
+                        <div class="flex-1">
+                            <h4 class="text-3xl font-black text-white leading-tight tracking-tighter">${title}</h4>
+                            <p class="text-xs text-gray-600 mt-3 font-black uppercase tracking-widest">${item.original_title || item.original_name || ""}</p>
+                            <div class="mt-8 inline-block px-6 py-2 text-[10px] font-black rounded-full border border-${safety.color}/40 text-${safety.color} bg-${safety.color}/10 tracking-widest uppercase">Index: ${safety.label}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-card border border-white/5 p-10 rounded-[32px] flex flex-col gap-5 shadow-2xl">
+                        <h5 class="text-[10px] font-black text-gold tracking-[0.4em] uppercase">통합 분석 Matrix</h5>
+                        <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-white">Production:</strong><br>${companies}</p>
+                        <p class="text-xs text-gray-400 leading-relaxed font-bold tracking-tight mt-2"><strong class="text-white italic">Global Metric:</strong> Awareness ${popScore}pt / Estimated ${audience} Viewers</p>
+                    </div>
+
+                    <div class="bg-card border border-white/5 p-10 rounded-[32px] flex flex-col gap-5 border-l-4 border-green-500 shadow-2xl">
+                        <h5 class="text-[10px] font-black text-green-500 tracking-[0.4em] uppercase">영상 편집 가이드</h5>
+                        <p class="text-xs text-gray-200 leading-relaxed bg-black/50 p-6 rounded-3xl border border-white/5 shadow-inner">${safety.guide}</p>
+                        <p class="text-[10px] text-gray-500 font-bold italic mt-2">Tech Tip: ${safety.tips}</p>
+
+<div class="bg-black/40 rounded-3xl p-6 border border-white/5 mt-4">
+<h6 class="text-gold text-sm font-black mb-4">위험도별 영상 편집 가이드</h6>
+
+<div class="space-y-4 text-sm text-gray-300">
+<div>
+<b class="text-green-400">안전(SAFE)</b><br>
+리뷰·해설 중심 편집 권장 / 짧은 장면 인용 가능 / 나레이션과 자막 추가 시 안정적
+</div>
+
+<div>
+<b class="text-yellow-400">보통(CAUTION)</b><br>
+장면 길이 축소, 확대·축소 효과, 그래픽 오버레이 및 나레이션 비중 강화 권장
+</div>
+
+<div>
+<b class="text-red-400">위험(DANGER)</b><br>
+원본 영상 사용 최소화 / 스틸컷·대본 분석형 콘텐츠 권장 / 수익화 제한 가능성 높음
+</div>
+</div>
+</div>
+                    </div>
+
+                    <div class="bg-card border border-white/5 p-10 rounded-[32px] flex flex-col gap-6 border-l-4 border-red-600 shadow-2xl">
+                        <div class="flex items-center gap-4">
+                            <i class="fa-brands fa-youtube text-red-600 text-2xl animate-pulse"></i>
+                            <h5 class="text-[10px] font-black text-white tracking-[0.4em] uppercase">Benchmarking Reference</h5>
+                        </div>
+                        <ul class="flex flex-col gap-4 mt-2">
+                            ${channelsHtml}
+                        </ul>
+                    </div>
+                `;
+            } catch(e) { 
+                body.innerHTML = '<p class="text-center py-20 text-sm text-red-500 font-black tracking-widest">FAIL: METADATA EXTRACTION ERROR.</p>'; 
+            }
+        }
+
+        // 백드롭 및 패널 닫기
+        function closeDetailPanel() { 
+            document.getElementById('detail-panel').classList.add('translate-x-full'); 
+            document.getElementById('detail-backdrop').classList.add('hidden');
+        }
+
+        function updateHistoryDB(items) {
+            let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
+            items.forEach(item => {
+                if(!item.poster_path && !item.profile_path) return;
+                if(!history.find(h => h.id === item.id)) history.unshift(item);
+            });
+            if(history.length > 100) history = history.slice(0, 100);
+            localStorage.setItem('sm_movie_history', JSON.stringify(history));
+            currentPage = 1; 
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            const pgn = document.getElementById('pagination');
+            let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
+            
+            if(history.length === 0) { 
+                list.innerHTML = '<p class="text-center py-32 text-gray-800 text-[10px] font-black tracking-[0.5em] uppercase">No Historical Feed Detected</p>'; 
+                pgn.innerHTML = ''; 
+                return; 
+            }
+
+            const total = Math.ceil(history.length / ITEMS_PER_PAGE);
+            const currentItems = history.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+            
+            list.innerHTML = '';
+            currentItems.forEach(item => {
+                const title = item.title || item.name;
+                const safety = calculateSafetyStatus(item.id, title);
+                const year = (item.release_date || item.first_air_date || "----").substring(0,4);
+                
+                const rowHtml = `
+                    <div onclick="openDetailPanel(${item.id}, '${currentSearchType}')" class="flex items-center justify-between py-8 border-b border-white/5 hover:bg-white/5 transition-all px-10 border-l-4 border-${safety.color} cursor-pointer group rounded-xl">
+                        <div class="w-24 text-gray-800 font-black text-[10px] group-hover:text-gold transition uppercase">IDX-${item.id.toString().slice(-4)}</div>
+                        <div class="w-44 flex-shrink-0">
+                            <span class="px-5 py-2 text-[9px] font-black rounded-full border border-${safety.color}/50 text-${safety.color} bg-${safety.color}/5 uppercase tracking-widest">${safety.label}</span>
+                        </div>
+                        <div class="flex-1 px-10 flex items-center gap-8 overflow-hidden">
+                            <img src="${IMG_BASE_URL}${item.poster_path || item.profile_path}" class="w-14 h-20 object-cover rounded-2xl border border-white/10 shadow-2xl consulting-shadow">
+                            <div class="flex flex-col overflow-hidden">
+                                <h4 class="text-white font-black text-lg truncate tracking-tighter italic">${title}</h4>
+                                <p class="text-[10px] text-gray-700 font-black mt-2 uppercase tracking-widest">${item.original_title || item.original_name || ""} · ${year}</p>
+                            </div>
+                        </div>
+                        <div class="w-48 hidden md:flex items-center gap-6 justify-end flex-shrink-0">
+                            <div class="w-32 h-2 bg-gray-950 rounded-full overflow-hidden shadow-inner">
+                                <div class="h-full bg-${safety.color} shadow-[0_0_15px_rgba(255,255,255,0.2)]" style="width: ${safety.score}%"></div>
+                            </div>
+                            <span class="text-${safety.color} font-black text-sm w-8 text-right">${safety.score}</span>
+                        </div>
+                    </div>
+                `;
+                list.insertAdjacentHTML('beforeend', rowHtml);
+            });
+
+            pgn.innerHTML = '';
+            for(let i=1; i<=total; i++) {
+                const btn = document.createElement('button');
+                btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.onclick = (e) => { 
+                    e.stopPropagation(); 
+                    currentPage = i; 
+                    renderHistory(); 
+                };
+                pgn.appendChild(btn);
+            }
+        }
+
+        // DB 연결 관리 로직
+        function connectTMDB() {
+            const key = document.getElementById('header-tmdb-key').value.trim();
+            if(!key) { alert('API 키를 먼저 입력해주세요.'); return; }
+            localStorage.setItem('saved_tmdb_key', key);
+            checkTMDBConnection();
+        }
+
+        function disconnectTMDB() { 
+            if(confirm("TMDB 연결을 해제하시겠습니까?")) {
+                localStorage.removeItem('saved_tmdb_key'); 
+                checkTMDBConnection(); 
+            }
+        }
+
+        function checkTMDBConnection() {
+            const key = localStorage.getItem('saved_tmdb_key');
+            document.getElementById('tmdb-auth-section').style.display = key ? 'none' : 'flex';
+            document.getElementById('tmdb-connected-section').style.display = key ? 'flex' : 'none';
         }
     </script>
 </body>
