@@ -30,7 +30,6 @@
         .page-btn:hover { background: #333; color: #fff; }
         .page-btn.active { background: #D4AF37; color: #000; border-color: #D4AF37; }
         #detail-panel { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        /* 스크롤바 커스텀 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
@@ -181,7 +180,6 @@
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
         const IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-        // 구글 로그인 제어
         window.onload = function () {
             google.accounts.id.initialize({ client_id: "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com", callback: handleCredentialResponse });
             google.accounts.id.renderButton(document.getElementById("google-btn-container"), { theme: "outline", size: "large", shape: "pill", width: 280 });
@@ -238,18 +236,24 @@
             }
         }
 
-        // 💡 가상의 유튜브 채널 생성 함수 (디테일 패널용)
+        // 💡 구독자 수 생성 로직이 추가된 가상 채널 데이터
         function generateMockYoutubeChannels(movieId, title) {
             const prefixes = ["무비", "시네마", "방구석", "팝콘", "씨네", "영화", "리뷰", "스포"];
             const suffixes = ["공장", "천국", "돋보기", "리뷰어", "가이드", "월드", "매니아", "창고"];
-            const count = (movieId % 4) + 2; // 2~5개 생성
+            const count = (movieId % 4) + 2; 
             let channels = [];
             
             for(let i=0; i<count; i++) {
                 const name = prefixes[(movieId + i) % prefixes.length] + suffixes[(movieId * (i+1)) % suffixes.length];
-                // 실제 유튜브 검색창으로 이어지는 실용적인 링크 구성
-                const ytLink = `https://www.youtube.com/results?search_query=${encodeURIComponent(title + " 리뷰")}`;
-                channels.push({ name: name, url: ytLink });
+                
+                // 가상 구독자 수 계산 알고리즘 (영화 ID 기반)
+                const rawSubs = ((movieId * (i+3)) % 1500) + 5; 
+                const formattedSubs = rawSubs >= 10 ? (rawSubs / 10).toFixed(1) + "만" : rawSubs + "천";
+
+                const channelUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(name)}`;
+                const reviewUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(title + " " + name + " 리뷰")}`;
+                
+                channels.push({ name: name, subs: formattedSubs, channelUrl: channelUrl, reviewUrl: reviewUrl });
             }
             return channels;
         }
@@ -332,7 +336,6 @@
             }
         }
 
-        // 💡 디테일 패널 열기 로직 (유튜브 리스트 렌더링 포함)
         async function openDetailPanel(id, type) {
             const apiKey = localStorage.getItem('saved_tmdb_key');
             const panel = document.getElementById('detail-panel');
@@ -353,18 +356,24 @@
                     companies = item.production_companies.map(c => c.name).join(', ');
                 }
 
-                // 가상의 관객 수 및 유튜브 채널 데이터 생성
                 const popScore = Math.floor(item.popularity || 0).toLocaleString();
                 const voteAvg = item.vote_average ? item.vote_average.toFixed(1) : "0.0";
                 const estimatedAudience = Math.floor((item.popularity || 10) * 12345).toLocaleString();
                 const youtubeChannels = generateMockYoutubeChannels(item.id, title);
 
-                // 유튜브 채널 리스트 HTML 구성
+                // 💡 UI 업데이트: 채널명 아래 구독자 수 표시 추가
                 const channelsHtml = youtubeChannels.map(ch => `
-                    <li>
-                        <a href="${ch.url}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2.5 rounded-lg bg-black/40 border border-white/5 hover:border-red-500/50 hover:bg-white/5 transition text-xs text-gray-300 hover:text-white">
-                            <span class="flex items-center font-bold"><i class="fa-brands fa-youtube text-red-500 text-sm mr-2.5"></i> ${ch.name}</span>
-                            <span class="text-[10px] text-gray-500 flex items-center gap-1">리뷰 보기 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                    <li class="flex items-center justify-between p-1.5 rounded-lg bg-black/40 border border-white/5 transition hover:border-white/20">
+                        <a href="${ch.channelUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center p-2 group">
+                            <i class="fa-brands fa-youtube text-red-500 text-base mr-3 group-hover:scale-125 transition-transform duration-200"></i>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-xs text-gray-300 group-hover:text-white transition">${ch.name}</span>
+                                <span class="text-[9px] text-gray-500 mt-0.5 font-mono">구독자 ${ch.subs}명</span>
+                            </div>
+                        </a>
+                        
+                        <a href="${ch.reviewUrl}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-gray-400 flex items-center gap-1.5 hover:text-red-400 hover:bg-white/10 transition px-3 py-2 rounded border border-transparent hover:border-red-500/30 whitespace-nowrap">
+                            리뷰 보기 <i class="fa-solid fa-arrow-up-right-from-square"></i>
                         </a>
                     </li>
                 `).join('');
@@ -391,14 +400,9 @@
                         <p class="text-xs text-gray-300 leading-relaxed bg-black/50 p-3 rounded border border-white/5">${safety.guide}</p>
                     </div>
 
-                    <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3">
-                        <h5 class="text-sm font-bold text-yellow-400 tracking-wider font-serif"><i class="fa-solid fa-scissors mr-1"></i> 추천 편집 테크닉 요약</h5>
-                        <p class="text-xs text-gray-400 leading-relaxed">${safety.tips}</p>
-                    </div>
-
                     <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3 border-l-2 border-l-red-500">
                         <h5 class="text-sm font-bold text-red-500 tracking-wider font-serif"><i class="fa-brands fa-youtube mr-1"></i> 레퍼런스 채널 현황</h5>
-                        <p class="text-[10px] text-gray-400 mb-1">해당 콘텐츠를 다루고 있는 주요 채널입니다. (클릭 시 새 창 검색 연동)</p>
+                        <p class="text-[10px] text-gray-400 mb-1">채널명 또는 우측의 리뷰 링크를 클릭하여 유튜브 검색 결과를 확인하세요.</p>
                         <ul class="flex flex-col gap-1.5 mt-1">
                             ${channelsHtml}
                         </ul>
@@ -411,7 +415,6 @@
 
         function closeDetailPanel() { document.getElementById('detail-panel').classList.add('translate-x-full'); }
 
-        // 로컬 DB 연동 및 페이지네이션
         function updateHistoryDB(items) {
             let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
             items.forEach(item => {
