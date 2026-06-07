@@ -223,7 +223,7 @@
 
         <div id="detail-backdrop" onclick="closeDetailPanel()" class="fixed inset-0 bg-black/80 z-40 hidden backdrop-blur-sm transition-all duration-500 cursor-pointer"></div>
         
-        <div id="detail-panel" class="fixed top-[10%] right-0 h-[45vh] w-full max-w-2xl bg-[#080808] z-50 rounded-l-[40px] shadow-[0_0_150px_rgba(0,0,0,1)] border-l border-white/5 p-10 transform translate-x-full overflow-y-auto">
+        <div id="detail-panel" class="fixed top-[3vh] right-0 h-[94vh] w-full max-w-3xl bg-[#080808] z-50 rounded-l-[40px] shadow-[0_0_150px_rgba(0,0,0,1)] border-l border-white/5 p-12 transform translate-x-full overflow-y-auto">
             <div class="flex justify-between items-center mb-16 border-b border-white/5 pb-10">
                 <h3 class="text-3xl font-black text-gold font-serif tracking-tighter italic"><i class="fa-solid fa-file-shield mr-4"></i>심층 진단 보고서</h3>
                 <button onclick="closeDetailPanel()" class="text-gray-700 hover:text-white text-4xl transition-all hover:rotate-90"><i class="fa-solid fa-xmark"></i></button>
@@ -453,21 +453,9 @@
                     </div>
 
                     <div class="bg-card border border-white/5 p-10 rounded-[32px] flex flex-col gap-5 border-l-4 border-green-500 shadow-2xl">
-                        <h5 class="text-[10px] font-black text-green-500 tracking-[0.4em] uppercase">편집 가이드</h5>
+                        <h5 class="text-[10px] font-black text-green-500 tracking-[0.4em] uppercase">Strategic Defense Guide</h5>
                         <p class="text-xs text-gray-200 leading-relaxed bg-black/50 p-6 rounded-3xl border border-white/5 shadow-inner">${safety.guide}</p>
                         <p class="text-[10px] text-gray-500 font-bold italic mt-2">Tech Tip: ${safety.tips}</p>
-
-                        <div class="bg-black/40 rounded-3xl p-6 border border-white/5 mt-4">
-                            <h6 class="text-gold text-xs font-black mb-4">추천 편집 방식</h6>
-                            <ul class="text-xs text-gray-300 leading-relaxed space-y-3">
-                                <li>• 핵심 장면은 5초 이하로 분할 사용</li>
-                                <li>• 장면 전환 시 확대/축소 효과 적용</li>
-                                <li>• 화면 전체에 자막 또는 그래픽 오버레이 추가</li>
-                                <li>• 원본 오디오 대신 나레이션 중심 구성</li>
-                                <li>• 리뷰·해설 비중을 높게 유지</li>
-                                <li>• 인트로와 엔딩에 자체 제작 영상 삽입</li>
-                            </ul>
-                        </div>
                     </div>
 
                     <div class="bg-card border border-white/5 p-10 rounded-[32px] flex flex-col gap-6 border-l-4 border-red-600 shadow-2xl">
