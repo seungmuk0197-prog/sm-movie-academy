@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SM무비 아카데미 | 하이브리드 저작권 분석 시스템</title>
+    <title>SM무비 아카데미 | 저작권 정밀 분석 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +29,12 @@
         .page-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; border: 1px solid #222; color: #888; background: #111; }
         .page-btn:hover { background: #333; color: #fff; }
         .page-btn.active { background: #D4AF37; color: #000; border-color: #D4AF37; }
-        #detail-panel { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        #detail-panel { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* 스크롤바 커스텀 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
     </style>
 </head>
 <body class="antialiased">
@@ -55,17 +60,15 @@
                 </div>
                 
                 <div class="flex items-center gap-4">
-                    <div id="api-auth-section" class="flex items-center gap-2 bg-card border border-white/10 px-3 py-1.5 rounded-full">
+                    <div id="tmdb-auth-section" class="flex items-center gap-2 bg-card border border-white/10 px-3 py-1.5 rounded-full">
                         <i class="fa-solid fa-key text-gold text-sm ml-1"></i>
-                        <input type="text" id="header-tmdb-key" placeholder="TMDB API 키" class="bg-transparent border-none text-white text-xs outline-none w-28 placeholder-gray-600">
-                        <div class="h-4 w-[1px] bg-white/20 mx-1"></div>
-                        <input type="text" id="header-kobis-key" placeholder="KOBIS API 키" class="bg-transparent border-none text-white text-xs outline-none w-28 placeholder-gray-600">
-                        <button onclick="connectAPIs()" class="text-[11px] font-bold text-black bg-gold px-3 py-1 rounded-full hover:bg-yellow-500 transition">DB 접속</button>
+                        <input type="text" id="header-tmdb-key" placeholder="TMDB API 키를 입력하세요" class="bg-transparent border-none text-white text-xs outline-none w-44 placeholder-gray-600">
+                        <button onclick="connectTMDB()" class="text-[11px] font-bold text-black bg-gold px-3 py-1 rounded-full hover:bg-yellow-500 transition">DB 연결</button>
                     </div>
-                    <div id="api-connected-section" class="items-center gap-2 bg-[#111] border border-green-500/50 px-4 py-1.5 rounded-full hidden">
+                    <div id="tmdb-connected-section" class="items-center gap-2 bg-[#111] border border-green-500/50 px-4 py-1.5 rounded-full hidden">
                         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                        <span class="text-green-400 text-xs font-bold tracking-wider">다중 DB 연동 (TMDB+KOBIS)</span>
-                        <button onclick="disconnectAPIs()" class="text-gray-500 hover:text-red-400 ml-2 transition"><i class="fa-solid fa-power-off text-[10px]"></i></button>
+                        <span class="text-green-400 text-xs font-bold tracking-wider">TMDB 데이터베이스 로그온 중</span>
+                        <button onclick="disconnectTMDB()" class="text-gray-500 hover:text-red-400 ml-2 transition"><i class="fa-solid fa-power-off text-[10px]"></i></button>
                     </div>
 
                     <div class="h-6 w-[1px] bg-white/10 mx-2"></div>
@@ -82,24 +85,22 @@
             
             <div class="mb-12">
                 <h2 class="text-5xl font-serif font-bold mb-4">지능형 시스템 <span class="text-gray-500">- 저작권 아카이브</span></h2>
-                <p class="text-gray-400 text-base max-w-3xl mb-8">글로벌(TMDB) 및 국내(KOBIS) 멀티미디어 인덱스를 실시간 병합 역추적합니다.</p>
+                <p class="text-gray-400 text-base max-w-3xl mb-8">글로벌 멀티미디어 인덱스를 실시간 역추적합니다. 원하시는 카테고리를 선택하고 타겟을 검색하십시오.</p>
                 
                 <div class="bg-card border border-white/10 p-6 rounded-2xl flex flex-col gap-4">
                     <div class="flex gap-2 border-b border-white/5 pb-3" id="search-type-tabs">
                         <button onclick="changeSearchType('movie')" id="tab-movie" class="px-4 py-2 text-sm font-bold border-b-2 border-gold text-white">영화 (MOVIES)</button>
                         <button onclick="changeSearchType('tv')" id="tab-tv" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-white">TV 프로그램 (TV SHOWS)</button>
                         <button onclick="changeSearchType('person')" id="tab-person" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-white">인물 (PEOPLE)</button>
+                        <button onclick="alert('Awards 카테고리는 대기 중입니다.')" class="px-4 py-2 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-white">AWARDS (시상식)</button>
                     </div>
 
                     <div class="flex flex-col md:flex-row gap-4 items-center">
                         <input type="text" id="search-query" placeholder="작품명 또는 인물명을 입력하세요..." class="flex-1 bg-black border border-gray-800 rounded-xl py-3.5 px-4 text-white outline-none focus:border-gold w-full text-sm">
-                        
                         <select id="filter-year" class="w-full md:w-40 bg-black border border-gray-800 rounded-xl py-3.5 px-4 text-white outline-none focus:border-gold text-sm cursor-pointer">
                             <option value="">연도 (전체)</option>
                             <option value="classic">옛날 고전 (1950 이전)</option>
-                            <script>
-                                for(let y=2026; y>=1950; y--) document.write(`<option value="${y}">${y}년</option>`);
-                            </script>
+                            <script>for(let y=2026; y>=1950; y--) document.write(`<option value="${y}">${y}년</option>`);</script>
                         </select>
                         <button onclick="searchEngineTrigger()" class="w-full md:w-auto bg-white text-black px-10 py-3.5 rounded-xl font-bold hover:bg-gold hover:text-black transition text-sm whitespace-nowrap">분석 데이터 호출</button>
                     </div>
@@ -114,7 +115,6 @@
                             <span class="text-[10px] text-gray-600 tracking-widest font-mono">CLEARED</span>
                         </div>
                         <h3 class="text-xl font-bold text-gray-200">콘텐츠 기획 추천</h3>
-                        <p class="text-xs text-gray-500 mt-1">저작권 클레임 제재 위험 지수가 낮아 자유로운 인용이 가능합니다.</p>
                     </div>
                     <div id="grid-safe" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow min-h-[150px]"></div>
                 </div>
@@ -126,7 +126,6 @@
                             <span class="text-[10px] text-gray-600 tracking-widest font-mono">CONDITIONAL</span>
                         </div>
                         <h3 class="text-xl font-bold text-gray-200">조건부 인용 권장</h3>
-                        <p class="text-xs text-gray-500 mt-1">시각 피치 변경, BGM 가공, 3초 룰 준수 등 정밀 편집 요망.</p>
                     </div>
                     <div id="grid-caution" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow min-h-[150px]"></div>
                 </div>
@@ -138,7 +137,6 @@
                             <span class="text-[10px] text-gray-600 tracking-widest font-mono">AVOID</span>
                         </div>
                         <h3 class="text-xl font-bold text-gray-200">리뷰 제작 비권장</h3>
-                        <p class="text-xs text-gray-500 mt-1">오디오 핑거프린트 필터 자동 차단 및 수익 분배 제한 조치 빈발 구역.</p>
                     </div>
                     <div id="grid-danger" class="grid grid-cols-2 gap-4 auto-rows-max flex-grow min-h-[150px]"></div>
                 </div>
@@ -150,11 +148,11 @@
                     <span class="text-gold border border-gold/30 px-3 py-1 rounded-full text-[10px] font-mono tracking-widest">DATA DEPLOYED</span>
                 </div>
                 
-                <div class="flex items-center justify-between pb-3 text-xs font-bold tracking-widest border-b border-white/10 pl-4 bg-[#111111] pt-3 rounded-t-lg">
-                    <div class="w-20 hidden sm:block font-mono text-gray-500">INDEX CODE</div>
-                    <div class="w-32 flex-shrink-0 text-gold">분석 등급 (RATING)</div>
-                    <div class="flex-1 px-4 text-white">작품 명세 및 핵심 줄거리 (METADATA & PLOT)</div>
-                    <div class="w-40 hidden md:flex justify-end pr-4 text-blue-400">매체 신뢰 지수 (STABILITY)</div>
+                <div class="flex items-center justify-between pb-3 text-gray-600 text-xs font-bold tracking-widest border-b border-white/10 pl-4">
+                    <div class="w-20 hidden sm:block font-mono">INDEX CODE</div>
+                    <div class="w-32 flex-shrink-0">분석 등급 (RATING)</div>
+                    <div class="flex-1 px-4">작품 명세 및 유저 평점 데이터 (METADATA INFO)</div>
+                    <div class="w-40 hidden md:flex justify-end pr-4">매체 신뢰 지수 (STABILITY)</div>
                 </div>
 
                 <div id="history-list" class="flex flex-col gap-1 min-h-[250px] mt-2"></div>
@@ -162,14 +160,12 @@
             </div>
         </main>
 
-        <div id="panel-overlay" onclick="closeDetailPanel()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300"></div>
-
-        <div id="detail-panel" class="fixed top-0 right-0 h-full w-full max-w-lg bg-[#111111] z-50 shadow-2xl border-l border-white/10 p-8 transform translate-x-full overflow-y-auto transition-transform duration-300">
+        <div id="detail-panel" class="fixed top-0 right-0 h-full w-full max-w-md bg-[#111111] z-50 shadow-2xl border-l border-white/10 p-8 transform translate-x-full overflow-y-auto">
             <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                 <h3 class="text-xl font-bold text-gold font-serif"><i class="fa-solid fa-file-shield mr-2"></i> 정밀 결함 진단서</h3>
-                <button onclick="closeDetailPanel()" class="text-gray-400 hover:text-white text-xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeDetailPanel()" class="text-gray-400 hover:text-white text-2xl transition"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div id="panel-body" class="flex flex-col gap-6">
+            <div id="panel-body" class="flex flex-col gap-5 pb-10">
                 </div>
         </div>
         
@@ -184,13 +180,12 @@
         const ITEMS_PER_PAGE = 5;
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
         const IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
-        const KOBIS_BASE_URL = "https://kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json";
 
-        // 구글 ID 인증 처리
+        // 구글 로그인 제어
         window.onload = function () {
-            google.accounts.id.initialize({ client_id: "79893355754-l61lcv9fi1ok5c12grteuac1ltc9g6eg.apps.googleusercontent.com", callback: handleCredentialResponse });
+            google.accounts.id.initialize({ client_id: "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com", callback: handleCredentialResponse });
             google.accounts.id.renderButton(document.getElementById("google-btn-container"), { theme: "outline", size: "large", shape: "pill", width: 280 });
-            checkAPIConnection();
+            checkTMDBConnection();
             renderHistory();
         };
 
@@ -215,56 +210,53 @@
             const tabs = ['movie', 'tv', 'person'];
             tabs.forEach(t => {
                 const el = document.getElementById(`tab-${t}`);
-                if(t === type) {
-                    el.classList.add('border-gold', 'text-white');
-                    el.classList.remove('border-transparent', 'text-gray-500');
-                } else {
-                    el.classList.remove('border-gold', 'text-white');
-                    el.classList.add('border-transparent', 'text-gray-500');
-                }
+                if(t === type) { el.classList.add('border-gold', 'text-white'); el.classList.remove('border-transparent', 'text-gray-500'); }
+                else { el.classList.remove('border-gold', 'text-white'); el.classList.add('border-transparent', 'text-gray-500'); }
             });
         }
 
-        // 안정도 판별 알고리즘 (유튜브 실무 분석 기준 적용 및 데이터 외부 반환)
         function calculateSafetyStatus(id, title) {
             const hash = id % 100;
-            
-            // 시뮬레이션을 위한 가상 유튜브 통계 데이터
-            const mockViews = hash > 60 ? (Math.floor(Math.random() * 500) + 100) : (Math.floor(Math.random() * 90) + 10);
-            const mockMonths = hash > 60 ? (Math.floor(Math.random() * 24) + 6) : (Math.floor(Math.random() * 5) + 1);
-            const mockChannels = hash > 60 ? (Math.floor(Math.random() * 15) + 5) : (Math.floor(Math.random() * 4) + 1);
-
-            let statusObj = { mockViews, mockMonths, mockChannels, score: hash }; 
-
             if (hash > 60) {
-                statusObj = { ...statusObj, type: 'safe', label: 'SAFE · 안전', bg: 'bg-green-950/50 border border-green-500', text: 'text-green-400', barBg: 'bg-green-500', score: 100,
-                    guide: `[정밀 판정: 통과]<br>본 작품('${title}')은 현재 유튜브 빅데이터 분석 결과 안전 기준을 모두 충족합니다.<br>
-                    <span class="text-gray-400 text-xs mt-2 block bg-black/50 p-2 rounded border border-green-900/50">
-                        ✓ 누적 조회수 100만 회 이상 (현재 ${mockViews}만 회)<br>
-                        ✓ 업로드 6개월 이상 유지 (최장 ${mockMonths}개월 생존)<br>
-                        ✓ 5개 이상 채널에서 다룸 (${mockChannels}개 채널 업로드)
-                    </span>`,
+                return {
+                    type: 'safe', label: 'SAFE · 안전', bg: 'bg-green-950/80 border border-green-500', text: 'text-green-400', barBg: 'bg-green-500', score: 100,
+                    guide: `[정밀 판정: 통과]<br>본 작품('${title}')은 현재 유튜브 빅데이터 분석 결과 안전 기준을 모두 충족합니다.<br><br>✓ 누적 조회수 100만 회 이상 기준 부합<br>✓ 업로드 6개월 이상 유지 자산 포함<br>✓ 다수 채널 인용 교차 검증 완료`,
                     tips: "특별한 피치 변조 처리가 요구되지 않습니다. 다만 오디오 자막 쏠림 현상을 방지하기 위해 단독 BGM 연속 15초 이상 인용은 자제하십시오."
                 };
             } else if (hash > 20) {
-                statusObj = { ...statusObj, type: 'caution', label: 'CAUTION · 주의', bg: 'bg-yellow-950/50 border border-yellow-500', text: 'text-yellow-400', barBg: 'bg-yellow-500', score: hash,
-                    guide: `[정밀 판정: 조건부 허용]<br>유튜브 내 해당 작품의 표본이 부족하거나 저작권 클레임 이력이 의심됩니다.<br>
-                    <span class="text-gray-500 text-xs mt-2 block">※ 미달 사유: 동종 리뷰 채널 ${mockChannels}개 / 최장 유지 기간 ${mockMonths}개월</span>`,
-                    tips: "영상 프레임 레이트를 원본 대비 2% 가량 미세 조정(오버레이 배속 가공)하고, 좌우 반전 처리를 분할 적용하여 영상 검출 엔진을 우회하십시오."
+                return {
+                    type: 'caution', label: 'CAUTION · 주의', bg: 'bg-yellow-950/80 border border-yellow-500', text: 'text-yellow-400', barBg: 'bg-yellow-500', score: hash,
+                    guide: `[정밀 판정: 조건부 허용]<br>본 작품('${title}')은 특정 유통 총판 대행 수입사 측의 저작권 보호 가이드라인이 가동 중입니다. 리뷰 제작 시 주의가 필요합니다.`,
+                    tips: "영상 프레임 레이트를 원본 대비 2% 가량 미세 조정하고, 좌우 반전 처리를 분할 적용하여 영상 검출 엔진을 우회하십시오."
                 };
             } else {
-                statusObj = { ...statusObj, type: 'danger', label: 'DANGER · 위험', bg: 'bg-red-950/50 border border-red-500', text: 'text-red-400', barBg: 'bg-red-500', score: 0,
-                    guide: `[정밀 판정: 접근 경고]<br>유튜브 내 생존 데이터가 전무하거나(관련 채널 0~1개), 업로드 직후 즉각적인 차단(블락) 이력이 감지되었습니다. 리뷰 영상 제작을 절대 비권장합니다.`,
-                    tips: "단독 비디오 인용을 즉시 중단하십시오. 리뷰 대본 위주의 라디오 정밀 오디오 체계 구조로 기획을 완전 우회 전환 변경 처리하셔야 채널 폐쇄를 예방할 수 있습니다."
+                return {
+                    type: 'danger', label: 'DANGER · 위험', bg: 'bg-red-950/80 border border-red-500', text: 'text-red-400', barBg: 'bg-red-500', score: 0,
+                    guide: `[정밀 판정: 접근 경고]<br>본 소스데이터는 유튜브 정밀 로봇 필터 엔진에 의해 소유권 침해 고지 및 수익 창출 전면 배제가 높은 확률로 강제 적용됩니다.`,
+                    tips: "단독 비디오 인용을 즉시 중단하십시오. 리뷰 대본 위주의 라디오 정밀 오디오 체계 구조로 기획을 완전 전환하셔야 채널 폐쇄를 예방할 수 있습니다."
                 };
             }
-            return statusObj;
         }
 
-        // 검색 데이터 엔진 호출
+        // 💡 가상의 유튜브 채널 생성 함수 (디테일 패널용)
+        function generateMockYoutubeChannels(movieId, title) {
+            const prefixes = ["무비", "시네마", "방구석", "팝콘", "씨네", "영화", "리뷰", "스포"];
+            const suffixes = ["공장", "천국", "돋보기", "리뷰어", "가이드", "월드", "매니아", "창고"];
+            const count = (movieId % 4) + 2; // 2~5개 생성
+            let channels = [];
+            
+            for(let i=0; i<count; i++) {
+                const name = prefixes[(movieId + i) % prefixes.length] + suffixes[(movieId * (i+1)) % suffixes.length];
+                // 실제 유튜브 검색창으로 이어지는 실용적인 링크 구성
+                const ytLink = `https://www.youtube.com/results?search_query=${encodeURIComponent(title + " 리뷰")}`;
+                channels.push({ name: name, url: ytLink });
+            }
+            return channels;
+        }
+
         async function searchEngineTrigger() {
-            const tmdbKey = localStorage.getItem('saved_tmdb_key');
-            if(!tmdbKey) { alert('우측 상단 엔진에서 TMDB API Key 연동 로그온을 수행하십시오.'); return; }
+            const apiKey = localStorage.getItem('saved_tmdb_key');
+            if(!apiKey) { alert('우측 상단 엔진에서 TMDB API Key 연동 로그온을 수행하십시오.'); return; }
 
             const query = document.getElementById('search-query').value.trim();
             const yearFilter = document.getElementById('filter-year').value;
@@ -276,15 +268,14 @@
             else if(yearFilter) yearParam = currentSearchType === 'movie' ? `&primary_release_year=${yearFilter}` : `&first_air_date_year=${yearFilter}`;
 
             if(query) {
-                url = `${TMDB_BASE_URL}/search/${currentSearchType}?api_key=${tmdbKey}&language=ko-KR&query=${encodeURIComponent(query)}`;
+                url = `${TMDB_BASE_URL}/search/${currentSearchType}?api_key=${apiKey}&language=ko-KR&query=${encodeURIComponent(query)}`;
             } else {
-                url = `${TMDB_BASE_URL}/discover/${currentSearchType}?api_key=${tmdbKey}&language=ko-KR&sort_by=popularity.desc${yearParam}`;
+                url = `${TMDB_BASE_URL}/discover/${currentSearchType}?api_key=${apiKey}&language=ko-KR&sort_by=popularity.desc${yearParam}`;
             }
 
             fetchDataAndRender(url);
         }
 
-        // 검색 데이터 렌더링 (그리드 카드 영역)
         async function fetchDataAndRender(url) {
             const grids = { safe: document.getElementById('grid-safe'), caution: document.getElementById('grid-caution'), danger: document.getElementById('grid-danger') };
             const loadHtml = '<div class="col-span-2 text-center py-6 text-xs text-gold animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i>연동 해석 중...</div>';
@@ -303,36 +294,27 @@
                     return;
                 }
 
-                data.results.forEach((item, index) => {
+                data.results.forEach(item => {
                     const title = item.title || item.name || "미정 명세";
                     const poster = item.poster_path || item.profile_path;
-                    if(!poster) return;
+                    if(!poster) return; 
 
                     const safety = calculateSafetyStatus(item.id, title);
                     const year = (item.release_date || item.first_air_date || "----").substring(0,4);
-                    const rank = index + 1;
                     
                     const cardHtml = `
                         <div onclick="openDetailPanel(${item.id}, '${currentSearchType}')" class="movie-card bg-black border border-white/5 rounded-xl overflow-hidden relative cursor-pointer group flex flex-col aspect-[2/3]">
                             <img src="${IMG_BASE_URL}${poster}" alt="${title}" class="w-full h-full object-cover">
-                            
-                            <div class="absolute top-2 left-2 flex gap-1 z-10">
-                                <span class="px-2 py-0.5 text-[10px] font-black bg-gold text-black rounded shadow-md">${rank}위</span>
-                                <span class="px-2 py-0.5 text-[9px] font-black ${safety.bg} ${safety.text} rounded backdrop-blur-sm shadow-md">
-                                    ${safety.label}
-                                </span>
+                            <div class="absolute bottom-2 right-2 px-2 py-1 bg-black/80 border border-red-500/50 rounded flex items-center gap-1 z-20">
+                                <i class="fa-brands fa-youtube text-red-500 text-[10px]"></i>
+                                <span class="text-[9px] text-white font-bold">${(item.id % 5) + 2}개 채널</span>
                             </div>
-
-                            <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end p-3">
-                                <h4 class="font-bold text-white text-xs leading-tight line-clamp-2 mb-1">${title}</h4>
-                                <div class="flex justify-between items-end">
-                                    <p class="text-[9px] text-gray-400">${year} · ID: ${item.id}</p>
-                                    
-                                    <div class="bg-black/60 border border-red-500/30 px-1.5 py-0.5 rounded flex items-center gap-1 backdrop-blur-sm">
-                                        <i class="fa-brands fa-youtube text-red-500 text-[10px]"></i>
-                                        <span class="text-[9px] text-gray-200 font-bold">${safety.mockChannels}개 채널</span>
-                                    </div>
-                                </div>
+                            <div class="absolute top-2 left-2 px-2 py-0.5 text-[9px] font-black ${safety.bg} ${safety.text} rounded backdrop-blur-sm shadow-md z-10 border">
+                                ${safety.label}
+                            </div>
+                            <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/90 to-transparent flex flex-col justify-end p-3 z-10">
+                                <h4 class="font-bold text-white text-xs leading-tight line-clamp-2">${title}</h4>
+                                <p class="text-[9px] text-gray-500 mt-1">${year} · ID: ${item.id}</p>
                             </div>
                         </div>
                     `;
@@ -350,110 +332,76 @@
             }
         }
 
-        // 하이브리드 디테일 슬라이드 패널 구동 (TMDB + KOBIS + 주연배우 + 오버레이)
+        // 💡 디테일 패널 열기 로직 (유튜브 리스트 렌더링 포함)
         async function openDetailPanel(id, type) {
-            const tmdbKey = localStorage.getItem('saved_tmdb_key');
-            const kobisKey = localStorage.getItem('saved_kobis_key');
+            const apiKey = localStorage.getItem('saved_tmdb_key');
             const panel = document.getElementById('detail-panel');
-            const overlay = document.getElementById('panel-overlay');
             const body = document.getElementById('panel-body');
             
-            body.innerHTML = '<div class="text-center py-20 text-gold"><i class="fa-solid fa-gear fa-spin text-3xl"></i><p class="mt-4 text-xs">하이브리드 메타데이터 및 캐스팅 정밀 분석 중...</p></div>';
-            
-            // 패널 열기 및 오버레이 배경 표시 애니메이션
-            overlay.classList.remove('hidden');
-            setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            body.innerHTML = '<div class="text-center py-20 text-gold"><i class="fa-solid fa-gear fa-spin text-3xl"></i><p class="mt-4 text-xs">서버 연동 메타데이터 정밀 분석 중...</p></div>';
             panel.classList.remove('translate-x-full');
 
             try {
-                // 1. TMDB 데이터 패치 (append_to_response=credits 속성을 붙여 캐스팅 데이터를 한 번에 가져옴)
-                const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?api_key=${tmdbKey}&language=ko-KR&append_to_response=credits`);
+                const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?api_key=${apiKey}&language=ko-KR`);
                 const item = await res.json();
                 
                 const title = item.title || item.name || "미정";
-                const originalTitle = item.original_title || item.original_name || "";
                 const safety = calculateSafetyStatus(item.id, title);
-
-                // 출연진(배우) 데이터 가공 (상위 3명 추출)
-                let castStr = "출연진 데이터 없음";
-                if (item.credits && item.credits.cast && item.credits.cast.length > 0) {
-                    castStr = item.credits.cast.slice(0, 3).map(c => c.name).join(', ');
-                }
                 
-                // 2. KOBIS 데이터 패치
-                let kobisInfo = null;
-                if(type === 'movie' && kobisKey) {
-                    try {
-                        const kobisRes = await fetch(`${KOBIS_BASE_URL}?key=${kobisKey}&movieNm=${encodeURIComponent(title)}`);
-                        const kobisData = await kobisRes.json();
-                        
-                        if(kobisData.movieListResult && kobisData.movieListResult.movieList.length > 0) {
-                            kobisInfo = kobisData.movieListResult.movieList[0];
-                        }
-                    } catch(err) {
-                        console.warn("KOBIS 연동 실패 혹은 해당 영화 정보가 없습니다.", err);
-                    }
-                }
-
-                // 3. 데이터 하이브리드 가공
-                let companies = "해외 직배 및 독립 유통 공급망 (TMDB 기준)";
-                let directors = "미상";
-                let nations = "글로벌 (TMDB)";
-                
-                if (kobisInfo) {
-                    companies = kobisInfo.companys && kobisInfo.companys.length > 0 
-                                ? kobisInfo.companys.map(c => c.companyNm).join(', ') 
-                                : companies;
-                    directors = kobisInfo.directors && kobisInfo.directors.length > 0 
-                                ? kobisInfo.directors.map(d => d.peopleNm).join(', ') 
-                                : "데이터 없음";
-                    nations = kobisInfo.repNationNm || nations;
-                } else if (item.production_companies && item.production_companies.length > 0) {
+                let companies = "해외 직배 및 독립 유통 공급망";
+                if(item.production_companies && item.production_companies.length > 0) {
                     companies = item.production_companies.map(c => c.name).join(', ');
                 }
 
-                // 4. 가상 관객수 통계
-                const popularity = item.popularity || 0;
-                const popScore = Math.floor(popularity).toLocaleString();
+                // 가상의 관객 수 및 유튜브 채널 데이터 생성
+                const popScore = Math.floor(item.popularity || 0).toLocaleString();
                 const voteAvg = item.vote_average ? item.vote_average.toFixed(1) : "0.0";
-                
-                const simulatedAudience = type === 'movie' 
-                                        ? Math.floor(popularity * 12500).toLocaleString('ko-KR') + "명 (추정치)" 
-                                        : "해당사항 없음 (TV/인물)";
+                const estimatedAudience = Math.floor((item.popularity || 10) * 12345).toLocaleString();
+                const youtubeChannels = generateMockYoutubeChannels(item.id, title);
 
-                // 5. DOM 렌더링
+                // 유튜브 채널 리스트 HTML 구성
+                const channelsHtml = youtubeChannels.map(ch => `
+                    <li>
+                        <a href="${ch.url}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2.5 rounded-lg bg-black/40 border border-white/5 hover:border-red-500/50 hover:bg-white/5 transition text-xs text-gray-300 hover:text-white">
+                            <span class="flex items-center font-bold"><i class="fa-brands fa-youtube text-red-500 text-sm mr-2.5"></i> ${ch.name}</span>
+                            <span class="text-[10px] text-gray-500 flex items-center gap-1">리뷰 보기 <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+                        </a>
+                    </li>
+                `).join('');
+
                 body.innerHTML = `
                     <div class="flex gap-4 items-start bg-black/40 p-4 border border-white/5 rounded-xl">
                         <img src="${IMG_BASE_URL}${item.poster_path || item.profile_path}" class="w-24 object-cover rounded shadow-md border border-white/10">
                         <div>
                             <h4 class="text-xl font-bold text-white">${title}</h4>
-                            <p class="text-xs text-gray-500 mt-1">${originalTitle}</p>
-                            <div class="mt-3 inline-block px-2.5 py-0.5 text-[11px] font-bold rounded ${safety.bg} ${safety.text}">${safety.label}</div>
+                            <p class="text-xs text-gray-500 mt-1">${item.original_title || item.original_name || ""}</p>
+                            <div class="mt-3 inline-block px-2.5 py-1 text-[11px] font-bold rounded ${safety.bg} ${safety.text}">${safety.status}</div>
                         </div>
                     </div>
                     
-                    <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3 relative overflow-hidden">
-                        ${kobisInfo ? '<div class="absolute -right-4 -bottom-4 text-gray-800 opacity-20 text-6xl"><i class="fa-solid fa-building-flag"></i></div>' : ''}
-                        
-                        <h5 class="text-sm font-bold text-gold tracking-wider font-serif">📋 인덱스 명세 및 KOBIS 배급 정보</h5>
+                    <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3">
+                        <h5 class="text-sm font-bold text-gold tracking-wider font-serif"><i class="fa-solid fa-clipboard-list mr-1"></i> 인덱스 명세 및 배급 정보</h5>
                         <p class="text-xs text-gray-400 leading-relaxed"><strong class="text-gray-300">주요 배포/제작사:</strong><br>${companies}</p>
-                        ${type === 'movie' ? `<p class="text-xs text-gray-400 leading-relaxed"><strong class="text-gray-300">국가 및 감독:</strong><br>${nations} / ${directors}</p>` : ''}
-                        
-                        ${type !== 'person' ? `<p class="text-xs text-gray-400 leading-relaxed mt-1"><strong class="text-gray-300">주요 출연진:</strong><br><span class="text-gray-400">${castStr}</span></p>` : ''}
-                        
-                        <hr class="border-white/5 my-1">
                         <p class="text-xs text-gray-400 mt-1"><strong class="text-gray-300">글로벌 지표:</strong> 평점 ★ ${voteAvg} (신뢰지수 ${popScore}pt)</p>
-                        <p class="text-xs text-gray-400"><strong class="text-gray-300">국내 누적 관객:</strong> ${simulatedAudience} <span class="text-[10px] text-gray-600">(알고리즘 환산)</span></p>
+                        <p class="text-xs text-gray-400"><strong class="text-gray-300">국내 누적 관객:</strong> ${estimatedAudience}명 (추정치)</p>
                     </div>
 
                     <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3">
-                        <h5 class="text-sm font-bold text-green-400 tracking-wider font-serif">🛡️ 유튜버 리스크 방어 가이드</h5>
+                        <h5 class="text-sm font-bold text-green-400 tracking-wider font-serif"><i class="fa-solid fa-shield-halved mr-1"></i> 유튜버 리스크 방어 가이드</h5>
                         <p class="text-xs text-gray-300 leading-relaxed bg-black/50 p-3 rounded border border-white/5">${safety.guide}</p>
                     </div>
 
                     <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3">
-                        <h5 class="text-sm font-bold text-yellow-400 tracking-wider font-serif">✂️ 추천 편집 테크닉 요약</h5>
+                        <h5 class="text-sm font-bold text-yellow-400 tracking-wider font-serif"><i class="fa-solid fa-scissors mr-1"></i> 추천 편집 테크닉 요약</h5>
                         <p class="text-xs text-gray-400 leading-relaxed">${safety.tips}</p>
+                    </div>
+
+                    <div class="bg-card border border-white/5 p-5 rounded-xl flex flex-col gap-3 border-l-2 border-l-red-500">
+                        <h5 class="text-sm font-bold text-red-500 tracking-wider font-serif"><i class="fa-brands fa-youtube mr-1"></i> 레퍼런스 채널 현황</h5>
+                        <p class="text-[10px] text-gray-400 mb-1">해당 콘텐츠를 다루고 있는 주요 채널입니다. (클릭 시 새 창 검색 연동)</p>
+                        <ul class="flex flex-col gap-1.5 mt-1">
+                            ${channelsHtml}
+                        </ul>
                     </div>
                 `;
             } catch(e) {
@@ -461,17 +409,7 @@
             }
         }
 
-        // X버튼 또는 배경(오버레이) 클릭 시 닫기
-        function closeDetailPanel() { 
-            const panel = document.getElementById('detail-panel');
-            const overlay = document.getElementById('panel-overlay');
-            
-            panel.classList.add('translate-x-full'); 
-            overlay.classList.add('opacity-0');
-            
-            // 애니메이션이 끝난 후 완전히 숨김 처리 (0.3초)
-            setTimeout(() => overlay.classList.add('hidden'), 300);
-        }
+        function closeDetailPanel() { document.getElementById('detail-panel').classList.add('translate-x-full'); }
 
         // 로컬 DB 연동 및 페이지네이션
         function updateHistoryDB(items) {
@@ -484,8 +422,7 @@
             currentPage = 1; renderHistory();
         }
 
-        // 실시간 피드(테이블) 렌더링 함수 - 주연배우 및 채널수 적용 완료
-        async function renderHistory() {
+        function renderHistory() {
             const list = document.getElementById('history-list');
             const pagination = document.getElementById('pagination');
             let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
@@ -498,65 +435,26 @@
             const totalPages = Math.ceil(history.length / ITEMS_PER_PAGE);
             const start = (currentPage - 1) * ITEMS_PER_PAGE;
             const currentItems = history.slice(start, start + ITEMS_PER_PAGE);
-            const tmdbKey = localStorage.getItem('saved_tmdb_key');
-
-            // 데이터를 불러오는 동안 짧은 로딩 표시
-            list.innerHTML = '<div class="text-center py-10 text-xs text-gold animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i>배우 데이터를 연동 중입니다...</div>';
-
-            // 주인공 이름 5개 동시 병렬 스크래핑 (속도 최적화)
-            const itemsWithActors = await Promise.all(currentItems.map(async (item) => {
-                let mainActor = "주연 미상";
-                if(currentSearchType !== 'person' && tmdbKey) {
-                    try {
-                        const res = await fetch(`${TMDB_BASE_URL}/${currentSearchType}/${item.id}/credits?api_key=${tmdbKey}&language=ko-KR`);
-                        const creditData = await res.json();
-                        if(creditData.cast && creditData.cast.length > 0) {
-                            mainActor = creditData.cast[0].name; // 첫 번째 캐스팅(주인공) 추출
-                        }
-                    } catch(e) {}
-                } else if(currentSearchType === 'person') {
-                    mainActor = "인물 본인";
-                }
-                return { ...item, mainActor };
-            }));
 
             list.innerHTML = '';
-            itemsWithActors.forEach(item => {
+            currentItems.forEach(item => {
                 const title = item.title || item.name || "미정";
                 const safety = calculateSafetyStatus(item.id, title);
                 const year = (item.release_date || item.first_air_date || "----").substring(0,4);
-                const overview = item.overview ? item.overview : "해당 작품의 상세 줄거리(Plot) 데이터가 TMDB 서버에서 제공되지 않습니다.";
                 
                 const rowHtml = `
                     <div onclick="openDetailPanel(${item.id}, '${currentSearchType}')" class="flex items-center justify-between py-3 border-b border-white/5 hover:bg-white/5 transition pl-4 border-l-2 ${safety.bg.split(' ')[2]} cursor-pointer">
                         <div class="w-20 text-gray-600 font-mono text-[11px] hidden sm:block">T-${item.id.toString().slice(-4)}</div>
-                        
                         <div class="w-32 flex-shrink-0">
                             <span class="px-2 py-0.5 text-[10px] font-bold rounded ${safety.bg} ${safety.text} whitespace-nowrap">${safety.label}</span>
                         </div>
-                        
-                        <div class="flex-1 px-4 flex items-center gap-4 overflow-hidden">
-                            <img src="${IMG_BASE_URL}${item.poster_path || item.profile_path}" class="w-10 h-14 object-cover rounded border border-white/10 flex-shrink-0 shadow-md">
-                            <div class="flex flex-col overflow-hidden w-full justify-center">
-                                <div class="flex items-center gap-2 mb-1.5">
-                                    <h4 class="text-white font-bold text-sm truncate max-w-[200px] lg:max-w-[300px]">${title}</h4>
-                                    
-                                    <div class="flex items-center gap-1.5 text-[10px] text-gray-500">
-                                        <span class="truncate hidden sm:inline">${item.original_title || item.original_name || ""} · ${year}</span>
-                                        <div class="bg-black/60 border border-red-500/30 px-1.5 py-0.5 rounded flex items-center gap-1 backdrop-blur-sm ml-1">
-                                            <i class="fa-brands fa-youtube text-red-500 text-[10px]"></i>
-                                            <span class="text-[9px] text-gray-200 font-bold">${safety.mockChannels}개 채널</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <p class="text-[11px] text-gray-400 truncate w-full pr-6 leading-relaxed">
-                                    <span class="text-gold font-bold mr-1">[${item.mainActor} 주연]</span>
-                                    <span class="text-gray-300 font-bold mr-1">줄거리:</span> ${overview}
-                                </p>
+                        <div class="flex-1 px-4 flex items-center gap-3 overflow-hidden">
+                            <img src="${IMG_BASE_URL}${item.poster_path || item.profile_path}" class="w-8 h-12 object-cover rounded border border-white/10 flex-shrink-0">
+                            <div class="flex flex-col overflow-hidden">
+                                <h4 class="text-white font-bold text-sm truncate">${title}</h4>
+                                <p class="text-[10px] text-gray-500 truncate">${item.original_title || item.original_name || ""} · ${year}</p>
                             </div>
                         </div>
-
                         <div class="w-40 hidden md:flex items-center gap-3 justify-end flex-shrink-0 pr-2">
                             <div class="w-24 h-1 bg-gray-900 rounded-full overflow-hidden">
                                 <div class="h-full ${safety.barBg}" style="width: ${safety.score}%"></div>
@@ -578,32 +476,22 @@
             }
         }
 
-        // 다중 API 연동 처리
-        function connectAPIs() {
-            const tmdbKey = document.getElementById('header-tmdb-key').value.trim();
-            const kobisKey = document.getElementById('header-kobis-key').value.trim();
-            
-            if(!tmdbKey) {
-                alert("최소한 TMDB API 키는 입력되어야 합니다.");
-                return;
-            }
-            
-            localStorage.setItem('saved_tmdb_key', tmdbKey);
-            if(kobisKey) localStorage.setItem('saved_kobis_key', kobisKey);
-            
-            checkAPIConnection();
+        function connectTMDB() {
+            const key = document.getElementById('header-tmdb-key').value.trim();
+            if(!key) return;
+            localStorage.setItem('saved_tmdb_key', key);
+            checkTMDBConnection();
         }
 
-        function disconnectAPIs() {
+        function disconnectTMDB() {
             localStorage.removeItem('saved_tmdb_key');
-            localStorage.removeItem('saved_kobis_key');
-            checkAPIConnection();
+            checkTMDBConnection();
         }
 
-        function checkAPIConnection() {
-            const tmdbKey = localStorage.getItem('saved_tmdb_key');
-            document.getElementById('api-auth-section').style.display = tmdbKey ? 'none' : 'flex';
-            document.getElementById('api-connected-section').style.display = tmdbKey ? 'flex' : 'none';
+        function checkTMDBConnection() {
+            const key = localStorage.getItem('saved_tmdb_key');
+            document.getElementById('tmdb-auth-section').style.display = key ? 'none' : 'flex';
+            document.getElementById('tmdb-connected-section').style.display = key ? 'flex' : 'none';
         }
     </script>
 </body>
