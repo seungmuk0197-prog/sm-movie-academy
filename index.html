@@ -317,9 +317,9 @@
 
         function calculateSafetyStatus(id, title) {
             const hash = id % 100;
-            if (hash > 60) return { type: 'safe', label: 'SAFE GRADE', score: 100, color: 'green-500', guide: '유튜브 빅데이터 통계 결과 제재 위험도가 비교적 낮은 자산으로 분류됩니다.', tips: '직접 장면 인용보다 요약, 해설, 편집 가공을 병행하는 편이 안정적입니다.' };
-            if (hash > 20) return { type: 'caution', label: 'CAUTION GRADE', score: hash, color: 'yellow-500', guide: '권리자 보호 정책 또는 자동 필터링 가능성이 존재합니다.', tips: '장면 길이 축소, 프레임 가공, 내레이션 강화 전략을 병행하세요.' };
-            return { type: 'danger', label: 'RESTRICTED', score: Math.max(5, hash), color: 'red-500', guide: '자동 차단 또는 수익 제한 리스크가 높을 수 있습니다.', tips: '리뷰 대본형, 스틸컷 중심 포맷, 교육/비평 중심 서술로 방향 전환이 유리합니다.' };
+            if (hash > 60) return { type: 'safe', label: 'SAFE GRADE (안전)', score: 100, color: 'green-500', guide: '유튜브 빅데이터 통계 결과 제재 위험도가 비교적 낮은 자산으로 분류됩니다.', tips: '직접 장면 인용보다 요약, 해설, 편집 가공을 병행하는 편이 안정적입니다.' };
+            if (hash > 20) return { type: 'caution', label: 'CAUTION GRADE (주의)', score: hash, color: 'yellow-500', guide: '권리자 보호 정책 또는 자동 필터링 가능성이 존재합니다.', tips: '장면 길이 축소, 프레임 가공, 내레이션 강화 전략을 병행하세요.' };
+            return { type: 'danger', label: 'RESTRICTED (제한)', score: Math.max(5, hash), color: 'red-500', guide: '자동 차단 또는 수익 제한 리스크가 높을 수 있습니다.', tips: '리뷰 대본형, 스틸컷 중심 포맷, 교육/비평 중심 서술로 방향 전환이 유리합니다.' };
         }
 
         function generateReferenceChannels(id, title) {
@@ -338,6 +338,10 @@
                 });
             }
             return result;
+        }
+
+        function getExposureCount(id) {
+            return ((id % 3) + 3);
         }
 
         function normalizeOverview(text) {
@@ -476,6 +480,7 @@
                         const full = await enrichItem(item, currentSearchType);
                         enriched.push(full);
                         const safety = calculateSafetyStatus(full.id, full.title);
+                        const exposureCount = getExposureCount(full.id);
                         const cardHtml = `
                             <div onclick="openDetailPanel(${full.id}, '${full.type}')" class="movie-card bg-black border border-white/5 rounded-3xl overflow-hidden relative cursor-pointer group aspect-[2/3] shadow-2xl">
                                 <img src="${posterUrl(full.poster_path)}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${full.title}">
@@ -484,6 +489,7 @@
                                     <h4 class="font-black text-white text-sm leading-tight line-clamp-2 italic tracking-tighter">${full.title}</h4>
                                     <p class="text-[10px] text-gray-600 mt-2 font-black uppercase tracking-tighter">${full.year} · ${full.genres}</p>
                                     <p class="text-[10px] text-gray-500 mt-1 line-clamp-2">감독 ${full.director}</p>
+                                    <p class="text-[10px] text-gold mt-2 font-black tracking-tight">${exposureCount}개 채널 노출중</p>
                                 </div>
                             </div>`;
                         grids[safety.type].insertAdjacentHTML('beforeend', cardHtml);
@@ -510,7 +516,9 @@
                 let item = history.find(v => String(v.id) === String(id) && v.type === type);
                 if (!item) item = await enrichItem({ id }, type);
                 const safety = calculateSafetyStatus(item.id, item.title);
+                const exposureCount = item.exposureCount || getExposureCount(item.id);
                 const refs = generateReferenceChannels(item.id, item.title);
+                const exposureCount = refs.length;
                 const channelsHtml = refs.map(ch => `
                     <li class="flex items-center justify-between p-5 rounded-[24px] bg-white/5 border border-white/5 transition hover:border-red-500/30 hover:bg-white/10 group consulting-shadow">
                         <a href="${ch.chUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center group">
@@ -555,7 +563,7 @@
                     <div class="bg-card border border-white/5 p-10 rounded-[32px] flex flex-col gap-6 shadow-2xl">
                         <div class="flex items-center gap-4">
                             <i class="fa-brands fa-youtube text-red-600 text-2xl animate-pulse"></i>
-                            <h5 class="text-[10px] font-black text-white tracking-[0.4em] uppercase">Benchmarking Reference</h5>
+                            <div class="flex items-center justify-between gap-4"><h5 class="text-[10px] font-black text-white tracking-[0.4em] uppercase">Benchmarking Reference</h5><span class="px-4 py-2 rounded-full bg-red-950/40 border border-red-500/30 text-red-400 text-[10px] font-black tracking-[0.2em] uppercase">${exposureCount}개 채널 노출중</span></div>
                         </div>
                         <ul class="flex flex-col gap-4 mt-2">${channelsHtml}</ul>
                     </div>`;
@@ -570,7 +578,7 @@
         }
 
         function updateHistoryDB(items) {
-            const normalized = items.map(item => ({ ...item, searchedAt: new Date().toISOString() }));
+            const normalized = items.map(item => ({ ...item, exposureCount: item.exposureCount || getExposureCount(item.id), searchedAt: new Date().toISOString() }));
             let history = JSON.parse(window.__historyCache || '[]');
             normalized.forEach(item => {
                 const idx = history.findIndex(h => h.id === item.id && h.type === item.type);
@@ -598,6 +606,7 @@
             list.innerHTML = '';
             currentItems.forEach(item => {
                 const safety = calculateSafetyStatus(item.id, item.title);
+                const exposureCount = item.exposureCount || getExposureCount(item.id);
                 const rowHtml = `
                     <div onclick="openDetailPanel(${item.id}, '${item.type}')" class="flex items-center justify-between py-8 border-b border-white/5 hover:bg-white/5 transition-all px-10 cursor-pointer group rounded-xl">
                         <div class="w-24 text-gray-800 font-black text-[10px] group-hover:text-gold transition uppercase">IDX-${String(item.id).slice(-4)}</div>
@@ -610,6 +619,7 @@
                                 <p class="text-[11px] text-gray-400 mt-2 truncate">감독: ${item.director}</p>
                                 <p class="text-[11px] text-gray-400 mt-1 truncate">배우: ${item.cast}</p>
                                 <p class="text-[11px] text-gray-500 mt-1 line-clamp-2">줄거리: ${item.plot}</p>
+                                <p class="text-[11px] text-gold mt-2 font-black">${exposureCount}개 채널 노출중</p>
                             </div>
                         </div>
                         <div class="w-48 hidden md:flex items-center gap-6 justify-end flex-shrink-0">
