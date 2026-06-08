@@ -120,6 +120,15 @@
                                 <input type="text" id="header-kobis-key" placeholder="KOBIS API KEY 입력" class="bg-transparent border-none text-white text-[12px] font-black outline-none w-52 placeholder-gray-700 tracking-tight">
                             </div>
                         </div>
+                        
+                        <div class="flex items-center gap-3 bg-black/60 border border-white/5 px-4 py-3 rounded-2xl">
+                            <i class="fa-brands fa-youtube text-red-500 text-sm"></i>
+                            <div>
+                                <div class="api-card-label">YOUTUBE API KEY</div>
+                                <input type="text" id="header-youtube-key" placeholder="YouTube API KEY 입력" class="bg-transparent border-none text-white text-[12px] font-black outline-none w-52">
+                            </div>
+                        </div>
+
                         <button onclick="connectAPIs()" class="text-[11px] font-black text-black bg-gold px-5 py-3 rounded-xl hover:bg-yellow-500 transition-all active:scale-95 shadow-lg shadow-gold/20 uppercase tracking-widest">Connect DB</button>
                     </div>
 
@@ -710,5 +719,42 @@
             }
         }
     </script>
+
+<script>
+function getYoutubeKey(){ return localStorage.getItem('youtube_api_key') || ''; }
+function saveYoutubeKey(){
+ const el=document.getElementById('header-youtube-key');
+ if(el) localStorage.setItem('youtube_api_key', el.value.trim());
+}
+function syncYouTubeKeyUI(){
+ const el=document.getElementById('header-youtube-key');
+ if(el) el.value=getYoutubeKey();
+}
+function getSavedYouTubeKey(){ return getYoutubeKey(); }
+
+async function searchYoutubeChannel(channelName){
+ const apiKey=getYoutubeKey();
+ if(!apiKey) return null;
+ const s=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(channelName)}&key=${apiKey}`);
+ const sd=await s.json();
+ if(!sd.items || !sd.items.length) return null;
+ const channelId=sd.items[0].id.channelId;
+
+ const d=await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelId}&key=${apiKey}`);
+ const dd=await d.json();
+ return dd.items?.[0] || null;
+}
+
+async function loadYouTubeDataIntoCards(){
+ console.log('YouTube API connected');
+}
+
+const __oldConnectAPIs = window.connectAPIs;
+window.connectAPIs = function(){
+ saveYoutubeKey();
+ return __oldConnectAPIs();
+};
+</script>
+
 </body>
 </html>
