@@ -461,7 +461,7 @@
             fetchDataAndRender(path, params);
         }
 
-        async function fetchDataAndRender(path, params) {
+       async function fetchDataAndRender(path, params) {
             const grids = { safe: document.getElementById('grid-safe'), caution: document.getElementById('grid-caution'), danger: document.getElementById('grid-danger') };
             const loadHtml = '<div class="col-span-2 text-center py-10 text-gold animate-pulse text-[10px] font-black tracking-widest uppercase">Profiling Data...</div>';
             Object.values(grids).forEach(g => g.innerHTML = loadHtml);
@@ -486,17 +486,22 @@
                                 
                                 <div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
                                     <span class="px-4 py-1.5 text-[9px] font-black border border-${safety.color}/60 bg-black/60 text-${safety.color} rounded-full tracking-widest backdrop-blur-md uppercase w-fit">${safety.label}</span>
-                                    
-                                    <div class="bg-black/70 border border-red-500/40 px-3 py-1.5 rounded-full flex items-center gap-1.5 backdrop-blur-md w-fit shadow-lg">
-                                        <i class="fa-brands fa-youtube text-red-500 text-[10px]"></i>
-                                        <span class="text-[9px] text-gray-100 font-black tracking-widest">${safety.mockChannels} CH</span>
-                                    </div>
                                 </div>
 
-                                <div class="absolute inset-x-0 bottom-0 h-[72%] bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end p-6">
+                                <div class="absolute inset-x-0 bottom-0 h-[75%] bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end p-6">
                                     <h4 class="font-black text-white text-sm leading-tight line-clamp-2 italic tracking-tighter">${full.title}</h4>
-                                    <p class="text-[10px] text-gray-600 mt-2 font-black uppercase tracking-tighter">${full.year} · ${full.genres.split(',')[0] || '분류 없음'}</p>
-                                    <p class="text-[10px] text-gray-500 mt-1 line-clamp-2">감독: ${full.director}</p>
+                                    
+                                    <div class="flex items-end justify-between mt-3 gap-2">
+                                        <div class="flex flex-col gap-1">
+                                            <p class="text-[10px] text-gray-600 font-black uppercase tracking-tighter">${full.year} · ${full.genres.split(',')[0] || '분류 없음'}</p>
+                                            <p class="text-[10px] text-gray-500 line-clamp-1">감독: ${full.director}</p>
+                                        </div>
+                                        
+                                        <div class="bg-black/70 border border-red-500/40 px-2 py-1.5 rounded-lg flex items-center gap-1.5 backdrop-blur-md shadow-lg shrink-0 mb-0.5">
+                                            <i class="fa-brands fa-youtube text-red-500 text-[11px]"></i>
+                                            <span class="text-[9px] text-gray-100 font-black tracking-widest">${safety.mockChannels} CH</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>`;
                         grids[safety.type].insertAdjacentHTML('beforeend', cardHtml);
