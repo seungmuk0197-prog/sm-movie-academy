@@ -36,7 +36,6 @@
     </script>
 
     <style>
-        /* 글로벌 컨설팅 스타일 고대비 다크 모드 */
         body { 
             background-color: #000; 
             color: #daffde; 
@@ -55,22 +54,18 @@
         .movie-card { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(255,255,255,0.05); }
         .movie-card:hover { transform: translateY(-10px); border-color: #D4AF37; box-shadow: 0 20px 40px rgba(0,0,0,1); }
         
-        /* 세련된 페이지네이션 디자인 */
         .page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.3s; background: #111; color: #666; border: 1px solid #222; }
         .page-btn.active { background: #D4AF37; color: #000; border-color: #D4AF37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
         .page-btn:hover:not(.active) { background: #222; color: #fff; }
         
-        /* 슬라이드 패널 인터랙션 */
         #detail-panel { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; }
         #detail-backdrop { transition: opacity 0.4s ease; }
 
-        /* 스크롤바 최적화 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
 
-        /* 가시성 개선 핵심 클래스 (구독자 및 액션 버튼) */
         .subscriber-tag { color: #D4AF37; font-weight: 900; font-size: 14px; letter-spacing: -0.02em; }
         .action-button { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #ddd; transition: all 0.2s; font-weight: 700; letter-spacing: 0.05em; }
         .action-button:hover { background: #EF4444; border-color: #EF4444; color: #fff; transform: scale(1.05); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
@@ -92,7 +87,6 @@
             <p class="text-gray-500 mb-14 text-sm leading-relaxed font-medium">SM MOVIE ACADEMY는 글로벌 콘텐츠의 메타데이터를 정밀 역추적하여<br>유튜브 저작권 클레임에 대한 선제적 대응 전략을 제공합니다.</p>
             
             <div id="google-btn-container" class="flex justify-center mb-8"></div>
-            
             <button onclick="bypassLogin()" class="text-[10px] text-gray-600 font-bold tracking-widest underline hover:text-white transition uppercase">Access as Guest Consultant</button>
         </div>
     </div>
@@ -206,24 +200,20 @@
                     <h3 class="text-3xl font-black tracking-[0.1em] font-serif text-gray-100 gold-gradient-text uppercase">진단 이력</h3>
                     <span class="text-gold border border-gold/20 px-8 py-2.5 rounded-full text-[11px] font-black tracking-[0.3em] uppercase">Enterprise Standard</span>
                 </div>
-                
                 <div class="flex items-center justify-between pb-6 text-gray-700 text-xs font-black tracking-[0.4em] border-b border-white/10 pl-10 uppercase">
                     <div class="w-24 hidden sm:block">Code</div>
                     <div class="w-44 flex-shrink-0">Risk Profile</div>
                     <div class="flex-1 px-10">Content Classification Info</div>
                     <div class="w-48 hidden md:flex justify-end pr-10">Stability Index</div>
                 </div>
-
                 <div id="history-list" class="flex flex-col gap-3 min-h-[400px] mt-8">
                     <p class="text-center py-32 text-gray-800 text-[10px] font-black tracking-[0.5em] uppercase">No Historical Feed Detected</p>
                 </div>
-                
                 <div id="pagination" class="flex justify-center items-center gap-5 mt-20 pt-12 border-t border-white/5"></div>
             </div>
         </main>
 
         <div id="detail-backdrop" onclick="closeDetailPanel()" class="fixed inset-0 bg-black/80 z-40 hidden backdrop-blur-sm transition-all duration-500 cursor-pointer"></div>
-        
         <div id="detail-panel" class="fixed top-0 right-0 h-full w-full max-w-2xl bg-[#080808] z-50 shadow-[0_0_150px_rgba(0,0,0,1)] border-l border-white/5 p-16 transform translate-x-full overflow-y-auto">
             <div class="flex justify-between items-center mb-16 border-b border-white/5 pb-10">
                 <h3 class="text-3xl font-black text-gold font-serif tracking-tighter italic"><i class="fa-solid fa-file-shield mr-4"></i>정밀 결함 진단서</h3>
@@ -239,16 +229,12 @@
     </div>
 
     <script>
-        /* -----------------------------------------------------------
-           시스템 코어 로직 (Consulting Grade Logic)
-        ----------------------------------------------------------- */
         let currentSearchType = 'movie';
         let currentPage = 1;
         const ITEMS_PER_PAGE = 7;
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
         const IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
         
-        // 실제 운영 시에는 본인의 구글 클라이언트 ID로 변경하세요.
         const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com";
 
         window.onload = function () {
@@ -263,7 +249,6 @@
             document.getElementById('main-screen').classList.remove('hidden');
             document.getElementById('user-info').classList.remove('hidden');
             document.getElementById('user-name').textContent = "Executive Seungmuk";
-            
             try {
                 let base64Url = response.credential.split('.')[1];
                 let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -309,7 +294,7 @@
                 tips: "영상 인용을 중단하고 대본과 스틸컷 위주의 리뷰 전략으로 전환하십시오." };
         }
 
-        // 숫자 포맷팅 함수 (만 단위 최적화)
+        // 숫자 포맷팅 (조회수, 구독자수용)
         function formatNumber(num) {
             num = Number(num);
             if (isNaN(num)) return "0";
@@ -318,25 +303,25 @@
             return num.toLocaleString();
         }
 
-        // 실제 유튜브 API 연동 로직
+        // 🚀 가짜 데이터를 삭제하고 100% 실제 YouTube API만 호출하는 로직
         async function fetchYouTubeData(title, ytApiKey) {
-            if (!ytApiKey) return [];
+            if (!ytApiKey) return null; // 키가 없으면 null 반환
+            
             try {
-                // 1. 영화 제목 + '리뷰' 로 유튜브 비디오 검색
                 const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(title + ' 영화 리뷰')}&type=video&maxResults=5&key=${ytApiKey}`;
                 const searchRes = await fetch(searchUrl);
                 const searchData = await searchRes.json();
                 
-                if (!searchData.items || searchData.items.length === 0) {
-                    console.warn("YouTube 검색 결과 없음:", searchData);
-                    return [];
+                if (searchData.error) {
+                    console.error("YouTube API 에러:", searchData.error.message);
+                    return null; // 할당량 초과 등 API 자체 에러 처리
                 }
+                
+                if (!searchData.items || searchData.items.length === 0) return [];
 
-                // 2. 검색된 결과에서 비디오 ID와 채널 ID 추출
                 const videoIds = searchData.items.map(item => item.id.videoId).filter(id => id).join(',');
                 const channelIds = searchData.items.map(item => item.snippet.channelId).filter(id => id).join(',');
 
-                // 3. 비디오 조회수 & 채널 구독자수 동시 조회
                 const [videoRes, channelRes] = await Promise.all([
                     fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoIds}&key=${ytApiKey}`),
                     fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelIds}&key=${ytApiKey}`)
@@ -345,14 +330,12 @@
                 const videoData = await videoRes.json();
                 const channelData = await channelRes.json();
 
-                // 4. 데이터 매핑
                 const viewMap = {};
                 if(videoData.items) videoData.items.forEach(v => viewMap[v.id] = v.statistics.viewCount);
 
                 const subMap = {};
                 if(channelData.items) channelData.items.forEach(c => subMap[c.id] = c.statistics.subscriberCount);
 
-                // 5. 최종 렌더링용 객체 배열 반환
                 return searchData.items.filter(item => item.id.videoId).map(item => {
                     const views = viewMap[item.id.videoId] || 0;
                     const subs = subMap[item.snippet.channelId] || 0;
@@ -368,28 +351,8 @@
                 });
             } catch(e) {
                 console.error("YouTube API 통신 에러:", e);
-                return []; 
+                return null; 
             }
-        }
-
-        // Mock 데이터 생성 (API 키가 없거나 할당량 초과 시 예비용)
-        function generateReferenceChannels(id, title) {
-            const pool = ["영화월드", "리뷰돋보기", "무비매니아", "방구석전문가", "팝콘리뷰어", "스포창고", "씨네마틱"];
-            const count = (id % 3) + 3;
-            let result = [];
-            for(let i=0; i<count; i++) {
-                const name = pool[(id+i)%pool.length];
-                const subsVal = ((id * (i+3)) % 3000) + 10;
-                const viewsVal = subsVal * ((id % 5) + 1) + 15; 
-                result.push({
-                    channelName: name,
-                    subs: formatNumber(subsVal * 10000),
-                    views: formatNumber(viewsVal * 10000),
-                    chUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(name)}`,
-                    rvUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(title + " " + name + " 리뷰")}`
-                });
-            }
-            return result;
         }
 
         async function searchEngineTrigger() {
@@ -425,7 +388,6 @@
                     return;
                 }
 
-                // credits 병렬 요청하여 감독·배우 데이터 저장
                 const apiKey = localStorage.getItem('saved_tmdb_key');
                 const creditsPromises = data.results
                     .filter(item => item.poster_path || item.profile_path)
@@ -456,7 +418,7 @@
                             <div class="absolute top-4 left-4 px-4 py-1.5 text-[9px] font-black border border-${safety.color}/60 bg-black/60 text-${safety.color} rounded-full tracking-widest backdrop-blur-md z-10 uppercase">${safety.label}</div>
                             <div class="absolute bottom-4 right-4 px-3 py-1.5 bg-black/80 rounded-xl border border-red-500/40 flex items-center gap-2 z-20">
                                 <i class="fa-brands fa-youtube text-red-600 text-xs"></i>
-                                <span class="text-[10px] text-white font-black">${(item.id % 5) + 3} Refs</span>
+                                <span class="text-[10px] text-white font-black">View</span>
                             </div>
                             <div class="absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end p-6">
                                 <h4 class="font-black text-white text-sm leading-tight line-clamp-2 italic tracking-tighter">${title}</h4>
@@ -467,14 +429,13 @@
                     grids[safety.type].insertAdjacentHTML('beforeend', cardHtml);
                 });
                 
-                // 결과가 없는 그리드 처리
                 Object.keys(grids).forEach(k => {
                     if(grids[k].children.length === 0) grids[k].innerHTML = '<div class="col-span-2 text-center py-10 text-gray-700 text-[10px] font-black tracking-widest uppercase">No Matches</div>';
                 });
                 
                 updateHistoryDB(data.results);
             } catch(e) { 
-                alert("통신 오류가 발생했습니다. TMDB API 키가 정확한지 확인하십시오."); 
+                alert("통신 오류가 발생했습니다. TMDB API 키를 확인하십시오."); 
             }
         }
 
@@ -491,7 +452,6 @@
             panel.classList.remove('translate-x-full');
 
             try {
-                // 기본정보 + 크레딧 병렬 요청
                 const [res, credRes] = await Promise.all([
                     fetch(`${TMDB_BASE_URL}/${type}/${id}?api_key=${apiKey}&language=ko-KR`),
                     fetch(`${TMDB_BASE_URL}/${type}/${id}/credits?api_key=${apiKey}&language=ko-KR`)
@@ -504,36 +464,21 @@
                 const popScore = Math.floor(item.popularity || 0).toLocaleString();
                 const audience = Math.floor((item.popularity || 10) * 12800).toLocaleString();
                 
-                // 유튜브 실제 데이터 호출 (실패시 가상 데이터로 폴백)
-                let youtubeChannels = [];
-                if (ytApiKey) {
-                    youtubeChannels = await fetchYouTubeData(title, ytApiKey);
-                }
-                
-                if (youtubeChannels.length === 0) {
-                    youtubeChannels = generateReferenceChannels(item.id, title);
-                }
+                // 유튜브 실제 데이터 연동 (가짜 데이터 원천 차단)
+                let youtubeChannels = await fetchYouTubeData(title, ytApiKey);
                 
                 const companies = (item.production_companies && item.production_companies.length > 0) 
                                     ? item.production_companies.map(c=>c.name).join(', ') 
                                     : 'Global Distribution';
 
-                // 감독 추출 
-                const directors = (credits.crew || [])
-                    .filter(p => p.job === 'Director')
-                    .map(p => p.name)
-                    .slice(0, 3)
-                    .join(', ') || '정보 없음';
+                const directors = (credits.crew || []).filter(p => p.job === 'Director').map(p => p.name).slice(0, 3).join(', ') || '정보 없음';
 
-                // 주요 배우 추출 
                 const castList = (credits.cast || []).slice(0, 6);
                 const castHtml = castList.length > 0
                     ? castList.map(a => `
                         <div class="flex flex-col items-center gap-2 min-w-0">
                             <div class="w-14 h-14 rounded-2xl overflow-hidden border border-white/10 bg-white/5 flex-shrink-0 shadow-lg">
-                                ${a.profile_path 
-                                    ? `<img src="${IMG_BASE_URL}${a.profile_path}" class="w-full h-full object-cover">` 
-                                    : `<div class="w-full h-full flex items-center justify-center text-gray-700"><i class="fa-solid fa-user text-xl"></i></div>`}
+                                ${a.profile_path ? `<img src="${IMG_BASE_URL}${a.profile_path}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-gray-700"><i class="fa-solid fa-user text-xl"></i></div>`}
                             </div>
                             <span class="text-[10px] text-gray-300 font-black text-center leading-tight truncate w-full px-1">${a.name}</span>
                             <span class="text-[9px] text-gray-700 text-center leading-tight truncate w-full px-1">${(a.character||'').substring(0,12)}</span>
@@ -543,25 +488,32 @@
 
                 const overview = item.overview || '줄거리 정보가 제공되지 않았습니다.';
 
-                // 리뷰 버튼 축소 및 구독자/조회수 1줄 표기
-                const channelsHtml = youtubeChannels.map(ch => `
-                    <li class="flex items-center justify-between p-4 rounded-[20px] bg-white/5 border border-white/5 transition hover:border-red-500/30 hover:bg-white/10 group consulting-shadow">
-                        <a href="${ch.chUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center group min-w-0">
-                            <i class="fa-brands fa-youtube text-red-600 text-2xl mr-4 group-hover:scale-110 transition-transform flex-shrink-0"></i>
-                            <div class="flex flex-col gap-0.5 truncate pr-2">
-                                <span class="font-black text-sm text-gray-200 group-hover:text-white transition tracking-tight truncate">${ch.channelName}</span>
-                                <div class="flex items-center gap-2 text-[11px] whitespace-nowrap">
-                                    <span class="text-gray-400 font-bold">구독자 ${ch.subs}</span>
-                                    <span class="text-gray-600">|</span>
-                                    <span class="text-gold font-black">조회수 ${ch.views}</span>
+                // 리뷰 채널 HTML (에러 처리 및 디자인 축소 완벽 적용)
+                let channelsHtml = '';
+                if (youtubeChannels === null) {
+                    channelsHtml = `<div class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 font-bold"><i class="fa-solid fa-circle-exclamation mr-2"></i>YouTube API 키가 유효하지 않거나 할당량이 초과되었습니다. 우측 상단에서 올바른 키를 입력해주세요.</div>`;
+                } else if (youtubeChannels.length === 0) {
+                    channelsHtml = `<div class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs text-gray-500 font-bold text-center">해당 작품의 유튜브 리뷰 영상을 찾을 수 없습니다.</div>`;
+                } else {
+                    channelsHtml = youtubeChannels.map(ch => `
+                        <li class="flex items-center justify-between p-4 rounded-[20px] bg-white/5 border border-white/5 transition hover:border-red-500/30 hover:bg-white/10 group consulting-shadow">
+                            <a href="${ch.chUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center group min-w-0">
+                                <i class="fa-brands fa-youtube text-red-600 text-2xl mr-4 group-hover:scale-110 transition-transform flex-shrink-0"></i>
+                                <div class="flex flex-col gap-0.5 truncate pr-2">
+                                    <span class="font-black text-sm text-gray-200 group-hover:text-white transition tracking-tight truncate">${ch.channelName}</span>
+                                    <div class="flex items-center gap-2 text-[11px] whitespace-nowrap">
+                                        <span class="text-gray-400 font-bold">구독자 ${ch.subs}</span>
+                                        <span class="text-gray-600">|</span>
+                                        <span class="text-gold font-black">조회수 ${ch.views}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </a>
-                        <a href="${ch.rvUrl}" target="_blank" rel="noopener noreferrer" class="action-button px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg active:scale-95 flex items-center gap-1 flex-shrink-0 text-[10px]">
-                            리뷰 영상 확인 <i class="fa-solid fa-play text-[8px]"></i>
-                        </a>
-                    </li>
-                `).join('');
+                            </a>
+                            <a href="${ch.rvUrl}" target="_blank" rel="noopener noreferrer" class="action-button px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg active:scale-95 flex items-center gap-1 flex-shrink-0 text-[10px]">
+                                리뷰 영상 확인 <i class="fa-solid fa-play text-[8px]"></i>
+                            </a>
+                        </li>
+                    `).join('');
+                }
 
                 body.innerHTML = `
                     <div class="flex gap-8 items-start bg-white/5 p-8 border border-white/10 rounded-[40px] shadow-2xl">
@@ -569,10 +521,12 @@
                         <div class="flex-1 min-w-0">
                             <h4 class="text-3xl font-black text-white leading-tight tracking-tighter">${title}</h4>
                             <p class="text-xs text-gray-600 mt-2 font-black uppercase tracking-widest">${item.original_title || item.original_name || ""}</p>
+                            
                             <div class="mt-5 flex items-start gap-3">
                                 <span class="text-[9px] font-black text-gray-600 tracking-[0.2em] uppercase pt-0.5 flex-shrink-0">감독</span>
                                 <span class="text-sm font-black text-gray-200 leading-snug">${directors}</span>
                             </div>
+                            
                             <div class="mt-5 inline-block px-6 py-2 text-[10px] font-black rounded-full border border-${safety.color}/40 text-${safety.color} bg-${safety.color}/10 tracking-widest uppercase">Index: ${safety.label}</div>
                         </div>
                     </div>
@@ -599,6 +553,7 @@
                         <h5 class="text-[10px] font-black text-green-500 tracking-[0.4em] uppercase">영상 편집 가이드</h5>
                         <p class="text-xs text-gray-200 leading-relaxed bg-black/50 p-6 rounded-3xl border border-white/5 shadow-inner">${safety.guide}</p>
                         <p class="text-[10px] text-gray-500 font-bold italic mt-2">Tech Tip: ${safety.tips}</p>
+
                         <div class="bg-black/40 rounded-3xl p-6 border border-white/5 mt-4">
                             <h6 class="text-gold text-sm font-black mb-4">위험도별 영상 편집 가이드</h6>
                             <div class="space-y-4 text-sm text-gray-300">
@@ -613,7 +568,7 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
                                 <i class="fa-brands fa-youtube text-red-600 text-2xl animate-pulse"></i>
-                                <h5 class="text-[12px] font-black text-white tracking-[0.2em] uppercase">벤치마킹 레퍼런스 채널 (${youtubeChannels.length}개)</h5>
+                                <h5 class="text-[12px] font-black text-white tracking-[0.2em] uppercase">벤치마킹 레퍼런스 채널 ${youtubeChannels ? `(${youtubeChannels.length}개)` : ''}</h5>
                             </div>
                             <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(title + ' 리뷰')}" target="_blank" rel="noopener noreferrer" class="text-[11px] text-gray-400 hover:text-white underline transition flex items-center gap-1">
                                 해당 컨텐츠 전체 리뷰 영상 확인 <i class="fa-solid fa-arrow-up-right-from-square"></i>
@@ -709,7 +664,6 @@
             }
         }
 
-        // 듀얼 API 연결 관리 로직
         function connectAPIs() {
             const tmdbKey = document.getElementById('header-tmdb-key').value.trim();
             const ytKey = document.getElementById('header-yt-key').value.trim();
