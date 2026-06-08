@@ -339,39 +339,51 @@
         }
 
         // 실제 인기 유튜버 정보와 정확한 핸들 맵핑 (404 오류 방지)
+        // 1. 404 오류 방지를 위해 모든 채널을 검색 결과로 연결하는 함수
         function generateReferenceChannels(id, title, targetCount) {
-            const channelPool = [
-                { name: '지무비 : G-Movie', handle: '@Gmovie', subs: '345만' },
-                { name: '김시선', handle: '@kimsiseon', subs: '163만' },
-                { name: '발없는새', handle: '@nofeetbird', subs: '113만' },
-                { name: '라이너의 영상캠프', handle: '@LinerCamp', subs: '125만' },
-                { name: '기묘한 케이지', handle: '@bizarrecage', subs: '108만' },
-                { name: '빨간토마토', handle: '@redtomatotube', subs: '160만' },
-                { name: '리뷰하는 엉클', handle: '@reviewuncle', subs: '48만' },
-                { name: '고몽', handle: '@gomongtube', subs: '210만' },
-                { name: '삐맨', handle: '@BMan', subs: '110만' },
-                { name: '백수골방', handle: '@baeksoogolbang', subs: '85만' }
+            const pool = [
+                { name: '지무비 : G-Movie' }, { name: '김시선' }, { name: '발없는새' },
+                { name: '라이너의 영상캠프' }, { name: '기묘한 케이지' }, { name: '빨간토마토' },
+                { name: '고몽' }, { name: '삐맨' }, { name: '백수골방' }, { name: '영화공장' }
             ];
             
             const result = [];
             for (let i = 0; i < targetCount; i++) {
-                const ch = channelPool[(id + i) % channelPool.length];
-                
-                // 조회수 분리 시뮬레이션
+                const ch = pool[(id + i) % pool.length];
+                const subsPool = ['49.9만', '66.2만', '82.5만', '98.8만', '115.1만', '131.4만', '204.7만'];
                 const viewsVal = ((id * (i + 3)) % 3000) + 10;
-                const viewsText = viewsVal >= 10 ? (viewsVal / 10).toFixed(1) + '만' : viewsVal + '천';
                 
                 result.push({
                     name: ch.name,
-                    subs: ch.subs,
-                    views: viewsText,
-                    chUrl: `https://www.youtube.com/${ch.handle}`, // 404 오류 없는 100% 작동 유튜브 핸들
-                    rvUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(ch.name + ' ' + title + ' 리뷰')}`
+                    subs: subsPool[(id + i) % subsPool.length], // 고정 구독자 수
+                    views: viewsVal >= 10 ? (viewsVal / 10).toFixed(1) + '만' : viewsVal + '천', // 리뷰 영상 조회수
+                    // 404를 방지하기 위해 채널 검색 결과 페이지로 연결
+                    chUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(ch.name)}`,
+                    rvUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(ch.name + ' ' + title)}`
                 });
             }
             return result;
         }
 
+        // 2. 패널 렌더링 내 HTML 교체 (구독자 vs 조회수 디자인 분리)
+        // openDetailPanel 함수 내부의 channelsHtml 생성 부분만 아래 코드로 교체하세요
+        const channelsHtml = refs.map(ch => `
+            <li class="flex items-center justify-between p-5 rounded-[24px] bg-white/5 border border-white/5 transition hover:border-red-500/30 hover:bg-white/10 group consulting-shadow mr-2">
+                <a href="${ch.chUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center group">
+                    <i class="fa-brands fa-youtube text-red-600 text-3xl mr-5 group-hover:scale-110 transition-transform"></i>
+                    <div class="flex flex-col">
+                        <span class="font-black text-sm text-gray-200 group-hover:text-white transition tracking-tight">${ch.name}</span>
+                        
+                        <div class="flex items-center gap-2 mt-1.5">
+                            <span class="subscriber-tag">구독자 ${ch.subs}명</span>
+                            <span class="text-gray-600 text-[10px]">|</span>
+                            <span class="views-tag">리뷰 조회수 ${ch.views}회</span>
+                        </div>
+                    </div>
+                </a>
+                <a href="${ch.rvUrl}" target="_blank" rel="noopener noreferrer" class="action-button px-6 py-3 rounded-xl whitespace-nowrap shadow-2xl active:scale-95">리뷰 영상 확인 <i class="fa-solid fa-play ml-2 text-[10px]"></i></a>
+            </li>`).join('');
+        
         function normalizeOverview(text) {
             if (!text) return '줄거리 정보가 아직 수집되지 않았습니다.';
             return text.replace(/\s+/g, ' ').trim();
