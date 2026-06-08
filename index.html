@@ -258,6 +258,8 @@
                 google.accounts.id.renderButton(document.getElementById('google-btn-container'), { theme: 'outline', size: 'large', shape: 'pill', width: 280 });
             } catch (e) {}
             checkAPIConnections();
+            syncYouTubeKeyUI();
+            if (getSavedYouTubeKey()) loadYouTubeDataIntoCards();
             renderHistory();
         };
 
@@ -309,6 +311,8 @@
             window.__tmdbKey = tmdb;
             window.__kobisKey = kobis;
             checkAPIConnections();
+            syncYouTubeKeyUI();
+            if (getSavedYouTubeKey()) loadYouTubeDataIntoCards();
             alert('TMDB + KOBIS 연결이 활성화되었습니다.');
         }
 
@@ -319,6 +323,8 @@
                 document.getElementById('header-tmdb-key').value = '';
                 document.getElementById('header-kobis-key').value = '';
                 checkAPIConnections();
+            syncYouTubeKeyUI();
+            if (getSavedYouTubeKey()) loadYouTubeDataIntoCards();
             }
         }
 
