@@ -318,9 +318,12 @@
 
         function calculateSafetyStatus(id, title) {
             const hash = id % 100;
-            if (hash > 60) return { type: 'safe', label: 'SAFE GRADE', score: 100, color: 'green-500', guide: '유튜브 빅데이터 통계 결과 제재 위험도가 비교적 낮은 자산으로 분류됩니다.', tips: '직접 장면 인용보다 요약, 해설, 편집 가공을 병행하는 편이 안정적입니다.' };
-            if (hash > 20) return { type: 'caution', label: 'CAUTION GRADE', score: hash, color: 'yellow-500', guide: '권리자 보호 정책 또는 자동 필터링 가능성이 존재합니다.', tips: '장면 길이 축소, 프레임 가공, 내레이션 강화 전략을 병행하세요.' };
-            return { type: 'danger', label: 'RESTRICTED', score: Math.max(5, hash), color: 'red-500', guide: '자동 차단 또는 수익 제한 리스크가 높을 수 있습니다.', tips: '리뷰 대본형, 스틸컷 중심 포맷, 교육/비평 중심 서술로 방향 전환이 유리합니다.' };
+            // 일관된 가상 채널 수 생성 (ID 기반 해시)
+            const mockChannels = hash > 60 ? (id % 11) + 5 : (id % 4) + 1;
+
+            if (hash > 60) return { type: 'safe', label: 'SAFE GRADE', score: 100, color: 'green-500', mockChannels, guide: '유튜브 빅데이터 통계 결과 제재 위험도가 비교적 낮은 자산으로 분류됩니다.', tips: '직접 장면 인용보다 요약, 해설, 편집 가공을 병행하는 편이 안정적입니다.' };
+            if (hash > 20) return { type: 'caution', label: 'CAUTION GRADE', score: hash, color: 'yellow-500', mockChannels, guide: '권리자 보호 정책 또는 자동 필터링 가능성이 존재합니다.', tips: '장면 길이 축소, 프레임 가공, 내레이션 강화 전략을 병행하세요.' };
+            return { type: 'danger', label: 'RESTRICTED', score: Math.max(5, hash), color: 'red-500', mockChannels, guide: '자동 차단 또는 수익 제한 리스크가 높을 수 있습니다.', tips: '리뷰 대본형, 스틸컷 중심 포맷, 교육/비평 중심 서술로 방향 전환이 유리합니다.' };
         }
 
         function generateReferenceChannels(id, title) {
@@ -480,11 +483,20 @@
                         const cardHtml = `
                             <div onclick="openDetailPanel(${full.id}, '${full.type}')" class="movie-card bg-black border border-white/5 rounded-3xl overflow-hidden relative cursor-pointer group aspect-[2/3] shadow-2xl">
                                 <img src="${posterUrl(full.poster_path)}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${full.title}">
-                                <div class="absolute top-4 left-4 px-4 py-1.5 text-[9px] font-black border border-${safety.color}/60 bg-black/60 text-${safety.color} rounded-full tracking-widest backdrop-blur-md z-10 uppercase">${safety.label}</div>
+                                
+                                <div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                                    <span class="px-4 py-1.5 text-[9px] font-black border border-${safety.color}/60 bg-black/60 text-${safety.color} rounded-full tracking-widest backdrop-blur-md uppercase w-fit">${safety.label}</span>
+                                    
+                                    <div class="bg-black/70 border border-red-500/40 px-3 py-1.5 rounded-full flex items-center gap-1.5 backdrop-blur-md w-fit shadow-lg">
+                                        <i class="fa-brands fa-youtube text-red-500 text-[10px]"></i>
+                                        <span class="text-[9px] text-gray-100 font-black tracking-widest">${safety.mockChannels} CH</span>
+                                    </div>
+                                </div>
+
                                 <div class="absolute inset-x-0 bottom-0 h-[72%] bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end p-6">
                                     <h4 class="font-black text-white text-sm leading-tight line-clamp-2 italic tracking-tighter">${full.title}</h4>
-                                    <p class="text-[10px] text-gray-600 mt-2 font-black uppercase tracking-tighter">${full.year} · ${full.genres}</p>
-                                    <p class="text-[10px] text-gray-500 mt-1 line-clamp-2">감독 ${full.director}</p>
+                                    <p class="text-[10px] text-gray-600 mt-2 font-black uppercase tracking-tighter">${full.year} · ${full.genres.split(',')[0] || '분류 없음'}</p>
+                                    <p class="text-[10px] text-gray-500 mt-1 line-clamp-2">감독: ${full.director}</p>
                                 </div>
                             </div>`;
                         grids[safety.type].insertAdjacentHTML('beforeend', cardHtml);
@@ -606,7 +618,16 @@
                         <div class="flex-1 px-10 flex items-center gap-8 overflow-hidden">
                             <img src="${posterUrl(item.poster_path)}" class="w-14 h-20 object-cover rounded-2xl border border-white/10 shadow-2xl consulting-shadow" alt="${item.title}">
                             <div class="flex flex-col overflow-hidden min-w-0">
-                                <h4 class="text-white font-black text-lg truncate tracking-tighter italic">${item.title}</h4>
+                                
+                                <div class="flex items-center gap-3">
+                                    <h4 class="text-white font-black text-lg truncate tracking-tighter italic">${item.title}</h4>
+                                    
+                                    <div class="bg-black/60 border border-red-500/30 px-2.5 py-1 rounded-md flex items-center gap-1.5 backdrop-blur-sm">
+                                        <i class="fa-brands fa-youtube text-red-500 text-[10px]"></i>
+                                        <span class="text-[9px] text-gray-200 font-black tracking-widest">${safety.mockChannels} CHANNELS</span>
+                                    </div>
+                                </div>
+                                
                                 <p class="text-[10px] text-gray-700 font-black mt-2 tracking-widest">${item.originalTitle || '-'} · ${item.year}</p>
                                 <p class="text-[11px] text-gray-400 mt-2 truncate">감독: ${item.director}</p>
                                 <p class="text-[11px] text-gray-400 mt-1 truncate">배우: ${item.cast}</p>
