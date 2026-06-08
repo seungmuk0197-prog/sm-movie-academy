@@ -64,6 +64,12 @@
         .meta-line { color: rgba(203, 213, 225, .84); font-size: 12px; line-height: 1.7; }
         .plot-line { color: rgba(148, 163, 184, .9); font-size: 12px; line-height: 1.75; }
         .mini-note { color: #6b7280; font-size: 11px; font-weight: 700; }
+        
+        /* 채널 리스트 전용 스크롤바 */
+        .channel-scroll::-webkit-scrollbar { width: 4px; }
+        .channel-scroll::-webkit-scrollbar-track { background: transparent; }
+        .channel-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        .channel-scroll::-webkit-scrollbar-thumb:hover { background: #ef4444; }
     </style>
 </head>
 <body class="antialiased">
@@ -326,11 +332,18 @@
             return { type: 'danger', label: 'RESTRICTED', score: Math.max(5, hash), color: 'red-500', mockChannels, guide: '자동 차단 또는 수익 제한 리스크가 높을 수 있습니다.', tips: '리뷰 대본형, 스틸컷 중심 포맷, 교육/비평 중심 서술로 방향 전환이 유리합니다.' };
         }
 
-        function generateReferenceChannels(id, title) {
-            const pool = ['영화월드', '리뷰돋보기', '무비매니아', '방구석전문가', '팝콘리뷰어', '스포창고', '씨네마틱'];
-            const count = (id % 3) + 3;
+        // targetCount 파라미터를 받아 정확한 개수만큼 채널을 렌더링하도록 수정됨
+        function generateReferenceChannels(id, title, targetCount) {
+            // 중복을 피하기 위한 확장된 가상 채널 리스트
+            const pool = [
+                '영화월드', '리뷰돋보기', '무비매니아', '방구석전문가', '팝콘리뷰어', 
+                '스포창고', '씨네마틱', '영화읽어주는남자', '시네마천국', '뭅뭅', 
+                '빨간토마토', '지무비', '김시선', '발없는새', '라이너의 영상캠프', 
+                '기묘한 케이지', '영화공장', '시네마노트', '리뷰하는 엉클', '무비트립'
+            ];
+            
             const result = [];
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < targetCount; i++) {
                 const name = pool[(id + i) % pool.length];
                 const subsVal = ((id * (i + 3)) % 3000) + 10;
                 const subsText = subsVal >= 10 ? (subsVal / 10).toFixed(1) + '만' : subsVal + '천';
@@ -461,7 +474,7 @@
             fetchDataAndRender(path, params);
         }
 
-       async function fetchDataAndRender(path, params) {
+        async function fetchDataAndRender(path, params) {
             const grids = { safe: document.getElementById('grid-safe'), caution: document.getElementById('grid-caution'), danger: document.getElementById('grid-danger') };
             const loadHtml = '<div class="col-span-2 text-center py-10 text-gold animate-pulse text-[10px] font-black tracking-widest uppercase">Profiling Data...</div>';
             Object.values(grids).forEach(g => g.innerHTML = loadHtml);
@@ -527,10 +540,13 @@
                 const history = JSON.parse(document.getElementById('history-list').dataset.cache || '[]');
                 let item = history.find(v => String(v.id) === String(id) && v.type === type);
                 if (!item) item = await enrichItem({ id }, type);
+                
                 const safety = calculateSafetyStatus(item.id, item.title);
-                const refs = generateReferenceChannels(item.id, item.title);
+                // 뱃지에 표시된 수(safety.mockChannels)만큼 리스트 생성 함수에 인자로 전달
+                const refs = generateReferenceChannels(item.id, item.title, safety.mockChannels);
+                
                 const channelsHtml = refs.map(ch => `
-                    <li class="flex items-center justify-between p-5 rounded-[24px] bg-white/5 border border-white/5 transition hover:border-red-500/30 hover:bg-white/10 group consulting-shadow">
+                    <li class="flex items-center justify-between p-5 rounded-[24px] bg-white/5 border border-white/5 transition hover:border-red-500/30 hover:bg-white/10 group consulting-shadow mr-2">
                         <a href="${ch.chUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center group">
                             <i class="fa-brands fa-youtube text-red-600 text-3xl mr-5 group-hover:scale-110 transition-transform"></i>
                             <div class="flex flex-col">
@@ -573,9 +589,9 @@
                     <div class="bg-card border border-white/5 p-10 rounded-[32px] flex flex-col gap-6 shadow-2xl">
                         <div class="flex items-center gap-4">
                             <i class="fa-brands fa-youtube text-red-600 text-2xl animate-pulse"></i>
-                            <h5 class="text-[10px] font-black text-white tracking-[0.4em] uppercase">Benchmarking Reference</h5>
+                            <h5 class="text-[10px] font-black text-white tracking-[0.4em] uppercase">Benchmarking Reference (${safety.mockChannels} Channels)</h5>
                         </div>
-                        <ul class="flex flex-col gap-4 mt-2">${channelsHtml}</ul>
+                        <ul class="flex flex-col gap-4 mt-2 max-h-[350px] overflow-y-auto channel-scroll">${channelsHtml}</ul>
                     </div>`;
             } catch (e) {
                 body.innerHTML = '<p class="text-center py-20 text-sm text-red-500 font-black tracking-widest">FAIL: METADATA EXTRACTION ERROR.</p>';
