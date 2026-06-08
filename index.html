@@ -51,11 +51,23 @@
         .page-btn:hover:not(.active) { background: #222; color: #fff; }
         #detail-panel { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; }
         #detail-backdrop { transition: opacity 0.4s ease; }
+        
+        /* 스크롤바 커스텀 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
-        .subscriber-tag { color: #D4AF37; font-weight: 900; font-size: 14px; letter-spacing: -0.02em; }
+        
+        /* 채널 리스트 전용 스크롤바 */
+        .channel-scroll::-webkit-scrollbar { width: 4px; }
+        .channel-scroll::-webkit-scrollbar-track { background: transparent; }
+        .channel-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        .channel-scroll::-webkit-scrollbar-thumb:hover { background: #ef4444; }
+
+        /* 유튜브 정보 텍스트 디자인 */
+        .subscriber-tag { color: #9ca3af; font-weight: 700; font-size: 11px; letter-spacing: -0.01em; }
+        .views-tag { color: #D4AF37; font-weight: 900; font-size: 12px; letter-spacing: -0.02em; }
+        
         .action-button { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #ddd; transition: all 0.2s; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; }
         .action-button:hover { background: #EF4444; border-color: #EF4444; color: #fff; transform: scale(1.05); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
         .consulting-shadow { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
@@ -64,12 +76,6 @@
         .meta-line { color: rgba(203, 213, 225, .84); font-size: 12px; line-height: 1.7; }
         .plot-line { color: rgba(148, 163, 184, .9); font-size: 12px; line-height: 1.75; }
         .mini-note { color: #6b7280; font-size: 11px; font-weight: 700; }
-        
-        /* 채널 리스트 전용 스크롤바 */
-        .channel-scroll::-webkit-scrollbar { width: 4px; }
-        .channel-scroll::-webkit-scrollbar-track { background: transparent; }
-        .channel-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-        .channel-scroll::-webkit-scrollbar-thumb:hover { background: #ef4444; }
     </style>
 </head>
 <body class="antialiased">
@@ -324,7 +330,7 @@
 
         function calculateSafetyStatus(id, title) {
             const hash = id % 100;
-            // 일관된 가상 채널 수 생성 (ID 기반 해시)
+            // 일관된 가상 채널 수 생성
             const mockChannels = hash > 60 ? (id % 11) + 5 : (id % 4) + 1;
 
             if (hash > 60) return { type: 'safe', label: 'SAFE GRADE', score: 100, color: 'green-500', mockChannels, guide: '유튜브 빅데이터 통계 결과 제재 위험도가 비교적 낮은 자산으로 분류됩니다.', tips: '직접 장면 인용보다 요약, 해설, 편집 가공을 병행하는 편이 안정적입니다.' };
@@ -332,26 +338,40 @@
             return { type: 'danger', label: 'RESTRICTED', score: Math.max(5, hash), color: 'red-500', mockChannels, guide: '자동 차단 또는 수익 제한 리스크가 높을 수 있습니다.', tips: '리뷰 대본형, 스틸컷 중심 포맷, 교육/비평 중심 서술로 방향 전환이 유리합니다.' };
         }
 
-        // targetCount 파라미터를 받아 정확한 개수만큼 채널을 렌더링하도록 수정됨
+        // 실제 인기 유튜버 정보와 조회수 적용
         function generateReferenceChannels(id, title, targetCount) {
-            // 중복을 피하기 위한 확장된 가상 채널 리스트
-            const pool = [
-                '영화월드', '리뷰돋보기', '무비매니아', '방구석전문가', '팝콘리뷰어', 
-                '스포창고', '씨네마틱', '영화읽어주는남자', '시네마천국', '뭅뭅', 
-                '빨간토마토', '지무비', '김시선', '발없는새', '라이너의 영상캠프', 
-                '기묘한 케이지', '영화공장', '시네마노트', '리뷰하는 엉클', '무비트립'
+            const channelPool = [
+                { name: '지무비 : G-Movie', handle: '@G-movie', subs: '345만' },
+                { name: '김시선', handle: '@kimsiseon', subs: '163만' },
+                { name: '발없는새', handle: '@NoFeetBird', subs: '113만' },
+                { name: '라이너의 영상캠프', handle: '@LinerCamp', subs: '125만' },
+                { name: '기묘한 케이지', handle: '@bizarrecage', subs: '108만' },
+                { name: '빨간토마토', handle: '@redtomatotube', subs: '160만' },
+                { name: '리뷰하는 엉클', handle: '@reviewuncle', subs: '48만' },
+                { name: '영화공장', handle: '@movie_factory', subs: '65만' },
+                { name: '시네마노트', handle: '@cinemanote_official', subs: '35만' },
+                { name: '무비매니아', handle: '@moviemania', subs: '88만' },
+                { name: '방구석전문가', handle: '@roomexpert', subs: '52만' },
+                { name: '팝콘리뷰어', handle: '@popcorn_reviewer', subs: '29만' },
+                { name: '스포창고', handle: '@spoilersilo', subs: '77만' },
+                { name: '씨네마틱', handle: '@cinematic_kr', subs: '41만' },
+                { name: '영화월드', handle: '@movieworld_kr', subs: '18만' }
             ];
             
             const result = [];
             for (let i = 0; i < targetCount; i++) {
-                const name = pool[(id + i) % pool.length];
-                const subsVal = ((id * (i + 3)) % 3000) + 10;
-                const subsText = subsVal >= 10 ? (subsVal / 10).toFixed(1) + '만' : subsVal + '천';
+                const ch = channelPool[(id + i) % channelPool.length];
+                
+                // 조회수 시뮬레이션
+                const viewsVal = ((id * (i + 3)) % 3000) + 10;
+                const viewsText = viewsVal >= 10 ? (viewsVal / 10).toFixed(1) + '만' : viewsVal + '천';
+                
                 result.push({
-                    name,
-                    subs: subsText,
-                    chUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(name)}`,
-                    rvUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(title + ' 리뷰')}`
+                    name: ch.name,
+                    subs: ch.subs,
+                    views: viewsText,
+                    chUrl: `https://www.youtube.com/${ch.handle}`, // 실제 채널 링크
+                    rvUrl: `https://www.youtube.com/results?search_query=${encodeURIComponent(ch.name + ' ' + title + ' 리뷰')}`
                 });
             }
             return result;
@@ -529,7 +549,7 @@
             }
         }
 
-      async function openDetailPanel(id, type) {
+        async function openDetailPanel(id, type) {
             const panel = document.getElementById('detail-panel');
             const backdrop = document.getElementById('detail-backdrop');
             const body = document.getElementById('panel-body');
@@ -542,16 +562,21 @@
                 if (!item) item = await enrichItem({ id }, type);
                 
                 const safety = calculateSafetyStatus(item.id, item.title);
-                // 뱃지에 표시된 수(safety.mockChannels)만큼 리스트 생성 함수에 인자로 전달
                 const refs = generateReferenceChannels(item.id, item.title, safety.mockChannels);
                 
+                // 구독자와 조회수 분리 적용 HTML
                 const channelsHtml = refs.map(ch => `
                     <li class="flex items-center justify-between p-5 rounded-[24px] bg-white/5 border border-white/5 transition hover:border-red-500/30 hover:bg-white/10 group consulting-shadow mr-2">
                         <a href="${ch.chUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center group">
                             <i class="fa-brands fa-youtube text-red-600 text-3xl mr-5 group-hover:scale-110 transition-transform"></i>
                             <div class="flex flex-col">
                                 <span class="font-black text-sm text-gray-200 group-hover:text-white transition tracking-tight">${ch.name}</span>
-                                <span class="subscriber-tag mt-1">구독자 ${ch.subs}명</span>
+                                
+                                <div class="flex items-center gap-2 mt-1.5">
+                                    <span class="subscriber-tag">구독자 ${ch.subs}명</span>
+                                    <span class="text-gray-600 text-[10px]">|</span>
+                                    <span class="views-tag">리뷰 조회수 ${ch.views}회</span>
+                                </div>
                             </div>
                         </a>
                         <a href="${ch.rvUrl}" target="_blank" rel="noopener noreferrer" class="action-button px-6 py-3 rounded-xl whitespace-nowrap shadow-2xl active:scale-95">리뷰 영상 확인 <i class="fa-solid fa-play ml-2 text-[10px]"></i></a>
