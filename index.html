@@ -529,7 +529,7 @@
             }
         }
 
-        async function openDetailPanel(id, type) {
+      async function openDetailPanel(id, type) {
             const panel = document.getElementById('detail-panel');
             const backdrop = document.getElementById('detail-backdrop');
             const body = document.getElementById('panel-body');
@@ -591,7 +591,7 @@
                             <i class="fa-brands fa-youtube text-red-600 text-2xl animate-pulse"></i>
                             <h5 class="text-[10px] font-black text-white tracking-[0.4em] uppercase">Benchmarking Reference (${safety.mockChannels} Channels)</h5>
                         </div>
-                        <ul class="flex flex-col gap-4 mt-2 max-h-[350px] overflow-y-auto channel-scroll">${channelsHtml}</ul>
+                        <ul class="flex flex-col gap-4 mt-2 max-h-[600px] overflow-y-auto channel-scroll pr-2">${channelsHtml}</ul>
                     </div>`;
             } catch (e) {
                 body.innerHTML = '<p class="text-center py-20 text-sm text-red-500 font-black tracking-widest">FAIL: METADATA EXTRACTION ERROR.</p>';
