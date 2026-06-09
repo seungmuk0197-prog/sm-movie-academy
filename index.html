@@ -204,17 +204,17 @@
                 </div>
                 
                 <div class="flex items-center justify-between pb-6 border-b border-white/10 pl-10">
-                    <div class="w-24 hidden sm:block text-[12px] font-bold text-gray-400 tracking-[0.2em] uppercase leading-relaxed">
-                        코드<br><span class="text-gray-600 text-[10px] tracking-[0.3em]">(CODE)</span>
+                    <div class="w-24 hidden sm:block text-[11px] font-bold text-gray-400 tracking-[0.2em] uppercase leading-relaxed">
+                        코드<br><span class="text-gray-600 text-[9px] tracking-[0.3em]">(CODE)</span>
                     </div>
-                    <div class="w-44 flex-shrink-0 text-[12px] font-bold text-gray-400 tracking-[0.2em] uppercase leading-relaxed text-center">
-                        위험도<br><span class="text-gray-600 text-[10px] tracking-[0.3em]">(RISK PROFILE)</span>
+                    <div class="w-44 flex-shrink-0 text-[11px] font-bold text-gray-400 tracking-[0.2em] uppercase leading-relaxed text-center">
+                        위험도<br><span class="text-gray-600 text-[9px] tracking-[0.3em]">(RISK PROFILE)</span>
                     </div>
-                    <div class="flex-1 px-10 text-[12px] font-bold text-gray-400 tracking-[0.2em] uppercase leading-relaxed">
-                        콘텐츠 정보<br><span class="text-gray-600 text-[10px] tracking-[0.3em]">(CONTENT INFO)</span>
+                    <div class="flex-1 px-10 text-[11px] font-bold text-gray-400 tracking-[0.2em] uppercase leading-relaxed">
+                        콘텐츠 정보<br><span class="text-gray-600 text-[9px] tracking-[0.3em]">(CONTENT INFO)</span>
                     </div>
-                    <div class="w-48 hidden md:block text-right pr-10 text-[12px] font-bold text-gray-400 tracking-[0.2em] uppercase leading-relaxed">
-                        안정성 지수<br><span class="text-gray-600 text-[10px] tracking-[0.3em]">(STABILITY INDEX)</span>
+                    <div class="w-48 hidden md:block text-right pr-10 text-[11px] font-bold text-gray-400 tracking-[0.2em] uppercase leading-relaxed">
+                        안정성 지수<br><span class="text-gray-600 text-[9px] tracking-[0.3em]">(STABILITY INDEX)</span>
                     </div>
                 </div>
 
@@ -248,7 +248,7 @@
         const TMDB_BASE_URL = "https://api.themoviedb.org/3";
         const IMG_BASE_URL = "https://image.tmdb.org/t/p/w500";
         
-        // 구글 클라이언트 ID
+        // 실제 운영 시 본인의 구글 클라이언트 ID 입력
         const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com";
 
         window.onload = function () {
@@ -343,7 +343,7 @@
             return `${yearStr} (${elapsedStr})`;
         }
 
-        // 1. YouTube API 연동 로직
+        // 1. YouTube API 연동 (에러 방어 코드 포함)
         async function fetchYouTubeData(title) {
             const ytApiKey = localStorage.getItem('saved_yt_key');
             if (!ytApiKey) return null; 
@@ -395,13 +395,14 @@
             }
         }
 
-        // 2. KOBIS 매칭 로직
+        // 2. KOBIS 매칭 로직 (HTTPS 규격 업그레이드 방어 적용)
         async function getKobisCode(movieTitle) {
             const kobisKey = localStorage.getItem('saved_kobis_key');
             if(!kobisKey) return null;
             
             try {
-                const url = `http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key=${kobisKey}&movieNm=${encodeURIComponent(movieTitle)}`;
+                // HTTPS를 강제하여 Mixed Content Error 방지
+                const url = `https://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json?key=${kobisKey}&movieNm=${encodeURIComponent(movieTitle)}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 return data.movieListResult?.movieList?.[0]?.movieCd || null;
@@ -448,13 +449,17 @@
                 const creditsPromises = data.results
                     .filter(item => item.poster_path || item.profile_path)
                     .map(item => 
+                        // Person 카테고리는 지원하지 않으므로 우회
+                        currentSearchType === 'person' ? Promise.resolve() :
                         fetch(`${TMDB_BASE_URL}/${currentSearchType}/${item.id}/credits?api_key=${apiKey}&language=ko-KR`)
-                            .then(r => r.json())
+                            .then(r => r.ok ? r.json() : null)
                             .then(cr => {
-                                const director = (cr.crew||[]).filter(p=>p.job==='Director').map(p=>p.name).slice(0,2).join(', ');
-                                const cast = (cr.cast||[]).slice(0,4).map(p=>p.name).join(', ');
-                                item.director = director || null;
-                                item.cast = cast || null;
+                                if(cr) {
+                                    const director = (cr.crew||[]).filter(p=>p.job==='Director').map(p=>p.name).slice(0,2).join(', ');
+                                    const cast = (cr.cast||[]).slice(0,4).map(p=>p.name).join(', ');
+                                    item.director = director || null;
+                                    item.cast = cast || null;
+                                }
                             })
                             .catch(()=>{})
                     );
@@ -526,18 +531,15 @@
             panel.classList.remove('translate-x-full');
 
             try {
-                // 방어 코드 추가: API 응답 상태 확인
+                // 방어 코드: fetch 결과가 ok인지 확인하여 패널 열림 에러 방지
                 const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?api_key=${apiKey}&language=ko-KR`);
-                if (!res.ok) throw new Error(`TMDB Data Fetch Error: ${res.status}`);
+                if(!res.ok) throw new Error(`TMDB Data Fetch Error: ${res.status}`);
                 const item = await res.json();
                 
                 let credits = {};
-                // Person 검색일 경우 크레딧 API가 다르거나 지원되지 않으므로 우회 처리
                 if(type !== 'person') {
                     const credRes = await fetch(`${TMDB_BASE_URL}/${type}/${id}/credits?api_key=${apiKey}&language=ko-KR`);
-                    if (credRes.ok) {
-                        credits = await credRes.json();
-                    }
+                    if (credRes.ok) credits = await credRes.json();
                 }
                 
                 const title = item.title || item.name || "Unknown";
@@ -572,12 +574,12 @@
 
                 let channelsHtml = '';
                 if (youtubeChannels === null) {
-                    channelsHtml = `<div class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 font-bold"><i class="fa-solid fa-circle-exclamation mr-2"></i>YouTube API 연동 필요</div>`;
+                    channelsHtml = `<div class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 font-bold"><i class="fa-solid fa-circle-exclamation mr-2"></i>YouTube API 연동 필요 (할당량 초과 또는 키 오류)</div>`;
                 } else if (youtubeChannels.length === 0) {
                     channelsHtml = `<div class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs text-gray-500 font-bold text-center">리뷰 영상을 찾을 수 없습니다.</div>`;
                 } else {
                     channelsHtml = youtubeChannels.map(ch => `
-                        <li class="flex items-center justify-between p-4 rounded-[20px] bg-white/5 border border-white/5 transition hover:border-red-500/30 hover:bg-white/10 group consulting-shadow">
+                        <li class="flex items-center justify-between p-5 rounded-[24px] bg-white/5 border border-white/5 transition hover:border-red-500/30 hover:bg-white/10 group consulting-shadow">
                             <a href="${ch.chUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center group min-w-0">
                                 <i class="fa-brands fa-youtube text-red-600 text-2xl mr-4 group-hover:scale-110 transition-transform flex-shrink-0"></i>
                                 <div class="flex flex-col gap-0.5 truncate pr-2">
@@ -607,17 +609,14 @@
                             </div>
                             <h2 class="text-3xl font-black text-white mb-4 relative z-10">${title}</h2>
                             <div class="flex items-center gap-3 mb-6 relative z-10">
-                                <div class="flex flex-col items-center gap-1">
-                                    <span class="px-4 py-1.5 bg-${safety.color}/10 text-${safety.color} text-[10px] font-black tracking-widest rounded-full border border-${safety.color}/40 uppercase">${safety.labelEng}</span>
-                                    <span class="text-${safety.color} font-black text-sm drop-shadow-md">${safety.labelKor}</span>
-                                </div>
-                                <span class="text-xs font-bold text-gray-400 ml-2">|</span>
-                                <span class="text-xs font-black text-gold ml-2"><i class="fa-brands fa-youtube mr-1 text-red-600"></i> 리뷰 채널 수: ${channelCount}개</span>
+                                <span class="px-4 py-1.5 bg-${safety.color}/10 text-${safety.color} text-[10px] font-black tracking-widest rounded-full border border-${safety.color}/40 uppercase">${safety.labelEng} (${safety.labelKor})</span>
+                                <span class="text-xs font-bold text-gray-400">|</span>
+                                <span class="text-xs font-black text-gold"><i class="fa-brands fa-youtube mr-1 text-red-600"></i> 리뷰 채널 수: ${channelCount}개</span>
                             </div>
                             
                             <div class="space-y-3 relative z-10">
                                 <p class="text-sm font-bold text-gray-200"><span class="text-gray-500 font-black mr-2">주인공:</span> ${mainActor}</p>
-                                <p class="text-[13px] text-gray-400 leading-relaxed bg-white/5 p-4 rounded-xl border border-white/5 line-clamp-3">${overview}</p>
+                                <p class="text-[13px] text-gray-300 leading-relaxed bg-white/5 p-5 rounded-2xl border border-white/5">${overview}</p>
                             </div>
                         </div>
 
@@ -651,7 +650,8 @@
                 `;
             } catch(e) { 
                 console.error(e);
-                body.innerHTML = '<p class="text-center py-20 text-sm text-red-500 font-black tracking-widest">데이터 추출 중 오류가 발생했습니다.<br><span class="text-[10px] text-gray-500">API 키 또는 통신 상태를 확인해주세요.</span></p>'; 
+                // 에러 발생 시 사용자 친화적인 메시지 출력
+                body.innerHTML = `<p class="text-center py-20 text-sm text-red-500 font-black tracking-widest">데이터 추출 중 오류가 발생했습니다.<br><span class="text-[10px] text-gray-500 mt-2 block">${e.message || 'API 키 또는 통신 상태를 확인해주세요.'}</span></p>`; 
             }
         }
 
@@ -664,7 +664,16 @@
             let history = JSON.parse(localStorage.getItem('sm_movie_history')) || [];
             items.forEach(item => {
                 if(!item.poster_path && !item.profile_path) return;
-                if(!history.find(h => h.id === item.id)) history.unshift(item);
+                
+                // 검색 타입 변경 후 과거 이력 클릭 시 404 충돌 에러 방지를 위해 저장
+                item.saved_media_type = currentSearchType;
+                
+                const existingIdx = history.findIndex(h => h.id === item.id);
+                if(existingIdx === -1) {
+                    history.unshift(item);
+                } else {
+                    history[existingIdx].saved_media_type = currentSearchType;
+                }
             });
             if(history.length > 100) history = history.slice(0, 100);
             localStorage.setItem('sm_movie_history', JSON.stringify(history));
@@ -691,16 +700,20 @@
                 const title = item.title || item.name;
                 const safety = calculateSafetyStatus(item.id, title);
                 const year = (item.release_date || item.first_air_date || "----").substring(0,4);
+                
+                const mediaType = item.saved_media_type || 'movie'; // 안전장치
 
                 const rowHtml = `
-                    <div onclick="openDetailPanel(${item.id}, '${currentSearchType}')" class="flex items-center justify-between py-6 border-b border-white/5 hover:bg-white/5 transition-all px-10 border-l-4 border-${safety.color} cursor-pointer group rounded-xl">
+                    <div onclick="openDetailPanel(${item.id}, '${mediaType}')" class="flex items-center justify-between py-6 border-b border-white/5 hover:bg-white/5 transition-all px-10 border-l-4 border-${safety.color} cursor-pointer group rounded-xl">
                         <div class="w-24 text-gray-800 font-black text-[10px] group-hover:text-gold transition uppercase">IDX-${item.id.toString().slice(-4)}</div>
+                        
                         <div class="w-44 flex-shrink-0 flex justify-center pr-10">
                             <div class="flex flex-col items-center justify-center px-5 py-2 rounded-full border border-${safety.color}/50 text-${safety.color} bg-${safety.color}/10 w-[140px]">
                                 <span class="text-[9px] font-black uppercase tracking-widest leading-tight">${safety.labelEng}</span>
                                 <span class="text-[12px] font-black mt-0.5 leading-tight drop-shadow-md">${safety.labelKor}</span>
                             </div>
                         </div>
+                        
                         <div class="flex-1 px-10 flex items-center gap-8 overflow-hidden">
                             <img src="${IMG_BASE_URL}${item.poster_path || item.profile_path}" class="w-16 h-24 object-cover rounded-xl border border-white/10 shadow-lg consulting-shadow flex-shrink-0">
                             <div class="flex flex-col overflow-hidden gap-1 w-full pr-4">
@@ -739,6 +752,7 @@
             }
         }
 
+        // 3종 API 연결 관리 로직
         function connectAPIs() {
             const tmdbKey = document.getElementById('header-tmdb-key').value.trim();
             const ytKey = document.getElementById('header-yt-key').value.trim();
